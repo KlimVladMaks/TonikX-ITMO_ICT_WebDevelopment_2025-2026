@@ -1,0 +1,9 @@
+# Установка venv:
+python3 -m venv .venv
+
+# Работа с venv:
+source .venv/bin/activate
+deactivate
+
+# Установка Django:
+pip install django
