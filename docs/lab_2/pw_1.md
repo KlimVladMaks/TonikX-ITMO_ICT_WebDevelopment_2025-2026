@@ -140,3 +140,52 @@ class Ownership(models.Model):
 Делаем поле `license_type` для `DrivingLicense` выборным с помощью параметра `choices=LICENSE_TYPES`, где `LICENSE_TYPES` - список с допустимыми значениями.
 
 Для полей, которые могут быть необязательными, указываем параметры `null=True, blank=True`.
+
+## Практическое задание 2.2
+
+Создать миграции и применить их к базе данных.
+
+### Выполнение задания 2.2
+
+Для того чтобы сделать миграцию, нам нужно сначала зарегистрировать приложение `project_first_app`. Для этого перейдём в файл общих настроек проекта `django_project_klimenkov/django_project_klimenkov/settings.py` и добавим название нашего приложения в `INSTALLED_APPS`:
+
+```python title="django_project_klimenkov/django_project_klimenkov/settings.py"
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'project_first_app', # Регистрируем наше приложение
+]
+```
+
+Также, так как мы использовали `AbstractUser` для создания модели `Owner`, то нам нужно указать в настройках, что теперь `Owner` будет использоваться вместо базовой модели пользователя:
+
+```python title="django_project_klimenkov/django_project_klimenkov/settings.py"
+# Добавим эту строку
+AUTH_USER_MODEL = 'project_first_app.Owner'
+```
+
+Теперь создадим миграцию с помощью команды:
+
+```
+python3 manage.py makemigrations project_first_app
+```
+
+Видим, что в папке `django_project_klimenkov/project_first_app/migrations` появился файл `0001_initial.py`, который содержит информацию о созданной нами миграции:
+
+![5](../img/lab_2/pw_1/5.png)
+
+Применим миграцию к базе данных с помощью команды:
+
+```
+python3 manage.py migrate
+```
+
+Теперь если посмотреть структуру файла `db.sqlite3`, в котором хранится база данных всего проекта, то можно увидеть следующие таблицы:
+
+![6](../img/lab_2/pw_1/6.png)
+
+Как можно заметить, база данных содержит как таблицы для созданных нами моделей, так и служебные таблицы. Тем не менее, наличие всех этих таблиц говорит о том, что миграция прошла успешно.
