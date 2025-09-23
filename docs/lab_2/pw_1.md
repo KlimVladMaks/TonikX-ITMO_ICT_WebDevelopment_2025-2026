@@ -260,3 +260,174 @@ python3 manage.py createsuperuser
 ![13](../img/lab_2/pw_1/13.png)
 
 ![14](../img/lab_2/pw_1/14.png)
+
+## Практическое задание 4
+
+Создать в файле views.py (находится в папке приложения) представление (контроллер), который выводит из базы данных данные о владельце автомобиля.
+
+Создать страницу html-шаблона owner.html в папке templates (создать папку templates в корне проекта, если её нигде нет, далее в контекстном меню папки создать html-файл). Страница должна содержать отображение полей переданных из контроллера.
+
+### Выполнение задания 4
+
+Для начала перейдём в файл `django_project_klimenkov/project_first_app/views.py` и создадим там контроллер, который будет выводить данные о владельце автомобиля:
+
+```python title="django_project_klimenkov/project_first_app/views.py"
+from django.shortcuts import render
+from django.http import Http404
+from .models import Owner
+
+
+def owner_detail(request, id):
+    """
+    Представление для отображения детальной информации об автовладельце.
+    """
+    try:
+        owner = Owner.objects.get(pk=id)
+    except Owner.DoesNotExist:
+        raise Http404("Автовладелец не найден")
+    
+    return render(request, 'owners/owner_detail.html', {'owner': owner})
+```
+
+Чтобы контроллер работал корректно, нужно также создать html-шаблон, с помощью которого контроллер сможет отображать информацию об автовладельце. Создадим данный шаблон в папке `templates` (данной папки по-умолчанию нет, так что первоначально создадим её):
+
+```html title="django_project_klimenkov/templates/owners/owner_detail.html"
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация об автовладельце</title>
+</head>
+<body>
+    <h1>Информация об автовладельце</h1> 
+    <div>
+        <p><strong>ID:</strong> {{ owner.id }}</p>
+        <p><strong>Фамилия:</strong> {{ owner.last_name }}</p>
+        <p><strong>Имя:</strong> {{ owner.first_name }}</p>
+        <p><strong>Дата рождения:</strong> {{ owner.birth_date }}</p>
+    </div>
+</body>
+</html>
+```
+
+Чтобы папка `templates` воспринималась проектом как папка для html-шаблонов нужно добавить её в `settings.TEMPLATES`:
+
+```python title="django_project_klimenkov/django_project_klimenkov/settings.py"
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+
+        # Регистрируем созданную нами папку как папку для шаблонов
+        'DIRS': [BASE_DIR / 'templates'],
+
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+```
+
+## Практическое задание 5
+
+Создать файл адресов `urls.py` в папке приложения.
+
+Импортировать файл `urls.py` приложения в проект (модифицировать файл `urls.py` в той папке, в которой хранится файл `setting.py`).
+
+Описать в файле `urls.py` приложения, созданном ранее, такой url-адрес, который сможет обратиться к контроллеру и вывести страницу, которая должна быть отрендерена контроллером.
+
+Результат: по url-адресу `127.0.0.1:8000/owner/1` возможно получить страницу с информацией о первом автовладельце.
+
+### Выполнение задания 5
+
+Создадим файл адресов `django_project_klimenkov/project_first_app/urls.py` в папке приложения. Чтобы адреса, добавленные в этот файл, работали корректно, требуется зарегистрировать созданный файл в файле адресов `django_project_klimenkov/django_project_klimenkov/urls.py` в папке проекта. Сделаем это:
+
+```python title="django_project_klimenkov/django_project_klimenkov/urls.py"
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls), # Адрес для доступа к админ-панели
+    path('', include('project_first_app.urls')), # Регистрируем адреса приложения
+]
+```
+
+Теперь в `django_project_klimenkov/project_first_app/urls.py` укажем url-адрес, по которому можно будет получить информацию о конкретном автовладельце:
+
+```python title="django_project_klimenkov/project_first_app/urls.py"
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+    # При переходе по этому адресу в контроллер owner_detail будут переданы
+    # request (сам запрос) и id (ID автовладельца)
+    path('owner/<int:id>/', views.owner_detail, name='owner_detail'),
+]
+```
+
+Теперь при переходе по адресу `127.0.0.1:8000/owner/<id>` будет выведена информация об автовладельце с идентификатором `id`.
+
+Для проверки запустим сервер и перейдём по адресу `127.0.0.1:8000/owner/2/`:
+
+![15](../img/lab_2/pw_1/15.png)
+
+Видим, что действительно отобразилась информация об автовладельце с ID 2 согласно созданному нами шаблону.
+
+## Добавление CSS-стилей
+
+На данный момент страница с информацией об автовладельце использует только "голый" HTML, а потому её оформление может быть не самым привлекательным. Чтобы это исправить, попробуем подключить к приложению CSS-стили.
+
+Для этого создадим папки `django_project_klimenkov/static/css` и поместим туда файл `styles.css`, в который в дальнейшем можно будет добавлять CSS-стили для веб-приложения.
+
+Зарегистрируем папку `static` как папку для статических файлов (CSS, JavaScript, изображения) в `settings.py`:
+
+```python title="django_project_klimenkov/django_project_klimenkov/settings.py"
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+STATIC_URL = 'static/'
+
+# Регистрируем папку "static" как папку для статических файлов
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+```
+
+Теперь подключим к шаблону `owner_detail.html` CSS-стили из файла `styles.css`:
+
+```html title="django_project_klimenkov/templates/owners/owner_detail.html"
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация об автовладельце</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css'%}" type="text/css">
+</head>
+<body>
+    <h1>Информация об автовладельце</h1>
+    <div class="detail-card">
+        <p><strong>ID:</strong> {{ owner.id }}</p>
+        <p><strong>Фамилия:</strong> {{ owner.last_name }}</p>
+        <p><strong>Имя:</strong> {{ owner.first_name }}</p>
+        <p><strong>Дата рождения:</strong> {{ owner.birth_date }}</p>
+    </div>
+</body>
+</html>
+```
+
+Для подключения CSS-стилей добавили следующие строки:
+
+- `{% load static %}`: Подгрузка статических файлов к HTML-шаблону.
+- `<link rel="stylesheet" href="{% static 'css/styles.css'%}" type="text/css">`: Подключение CSS-стилей из `styles.css`.
+
+Теперь обновим страницу и увидим, что CSS-стили действительно применились:
+
+![16](../img/lab_2/pw_1/16.png)
