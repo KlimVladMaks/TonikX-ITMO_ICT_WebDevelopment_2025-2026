@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 class Owner(AbstractUser):
     birth_date = models.DateField(null=True, blank=True)
+    cars = models.ManyToManyField('Car', through='Ownership')
 
     def __str__(self):
         return f"{self.last_name} {self.first_name}"
