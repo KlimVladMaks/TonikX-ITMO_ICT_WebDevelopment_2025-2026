@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.views.generic import ListView, DetailView
 from .models import Owner, Car
+from .forms import OwnerForm
 
 
 def root_redirect(request):
@@ -28,6 +29,37 @@ def owner_detail(request, id):
     return render(request, 'owners/owner_detail.html', {'owner': owner})
 
 
+def create_owner(request):
+    if request.method == 'POST':
+        form = OwnerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('owners_list')
+    else:
+        form = OwnerForm()
+    return render(request, 'owners/create_owner.html', {'form': form})
+
+
+def edit_owner(request, id):
+    owner = get_object_or_404(Owner, id=id)
+    if request.method == 'POST':
+        form = OwnerForm(request.POST, instance=owner)
+        if form.is_valid():
+            form.save()
+            return redirect('owners_list')
+    else:
+        form = OwnerForm(instance=owner)
+    return render(request, 'owners/edit_owner.html', {'form': form, 'owner': owner})
+
+
+def delete_owner(request, id):
+    owner = get_object_or_404(Owner, id=id)
+    if request.method == 'POST':
+        owner.delete()
+        return redirect('owners_list')
+    return render(request, 'owners/confirm_delete_owner.html', {'owner': owner})
+
+
 class CarsListView(ListView):
     model = Car
     template_name = 'cars/cars_list.html'
@@ -39,3 +71,6 @@ class CarDetailView(DetailView):
     template_name = 'cars/car_detail.html'
     context_object_name = 'car'
     pk_url_kwarg = 'car_id'
+
+
+

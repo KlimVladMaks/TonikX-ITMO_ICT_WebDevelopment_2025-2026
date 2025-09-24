@@ -15,14 +15,19 @@
     </div>
 
     <h1>Список автовладельцев</h1>
+
+    <a href="{% url 'create_owner' %}" class="create-button">Добавить автовладельца</a>
     
     {% if owners %}
         <table class="table">
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Username</th>
                     <th>Имя</th>
                     <th>Фамилия</th>
+                    <th></th>
+                    <th></th>
                     <th></th>
                 </tr>
             </thead>
@@ -30,11 +35,22 @@
                 {% for owner in owners %}
                 <tr>
                     <td>{{ owner.id }}</td>
+                    <td>{{ owner.username }}</td>
                     <td>{{ owner.first_name }}</td>
                     <td>{{ owner.last_name }}</td>
                     <td>
                         <a href="{% url 'owner_detail' owner.id %}">
                             Подробнее
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_owner' owner.id %}">
+                            Изменить
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'delete_owner' owner.id %}" class="delete">
+                            Удалить
                         </a>
                     </td>
                 </tr>

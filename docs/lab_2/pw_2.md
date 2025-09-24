@@ -31,7 +31,7 @@ python3 manage.py migrate
 ## Практическое задание 2
 
 1. Реализовать вывод всех владельцев функционально. Добавить данные минимум от трех владельцах. Должны быть реализованы контроллер (views) и шаблоны (templates).
-2. Реализовать вывод всех автомобилей, вывод автомобиля по id, обновления на основе классов. Добавить данные минимум о трех автомобилях. Должны быть реализованы контроллер (views) и шаблоны (templates).
+2. Реализовать вывод всех автомобилей, вывод автомобиля по id, обновления на основе классов. Добавить данные минимум о трёх автомобилях. Должны быть реализованы контроллер (views) и шаблоны (templates).
 
 ### Выполнение задания 2
 
@@ -325,3 +325,207 @@ urlpatterns = [
 ![4](../img/lab_2/pw_2/4.png)
 
 ![5](../img/lab_2/pw_2/5.png)
+
+## Практическое задание 3
+
+1. Реализовать форму ввода всех владельцев функционально. Добавить данные минимум о ещё трёх владельцах. Должны быть реализованы форма (Form), контроллер (views) и шаблоны (templates).
+2. Реализовать форму ввода, обновления и удаления всех автомобилей на основе классов. Добавить данные минимум о ещё трех автомобилях. Должны быть реализованы форма (Form), контроллер (views) и шаблоны (templates).
+
+### Выполнение задания 3
+
+Реализуем механизмы добавления, изменения и удаления владельцев функционально.
+
+Создадим файл `django_project_klimenkov/project_first_app/forms.py`, в который добавим форму владельца:
+
+```python title="django_project_klimenkov/project_first_app/forms.py"
+from django import forms
+from .models import Owner
+
+
+class OwnerForm(forms.ModelForm):
+    class Meta:
+        model = Owner
+        fields = ['username', 'password', 'first_name', 'last_name', 'birth_date']
+        widgets = {
+            'birth_date': forms.DateInput(attrs={'type': 'date'})
+        }
+```
+
+(Добавим в форму также поля `username` и `password`, так как они обязательны для модели пользователя, коим как раз и является владелец.)
+
+Теперь эту форму можно будет использовать для реализации механизмов добавления и редактирования владельцев.
+
+Создадим соответствующие представления:
+
+```python title="django_project_klimenkov/project_first_app/views.py"
+# Представление для создания владельца
+def create_owner(request):
+    # Если приходит форма, то проверяем её на корректность и сохраняем
+    if request.method == 'POST':
+        form = OwnerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('owners_list')
+    # Если иной запрос (запрос на получение формы), то создаём и возвращаем форму
+    else:
+        form = OwnerForm()
+    return render(request, 'owners/create_owner.html', {'form': form})
+
+
+# Представление для редактирования владельца
+def edit_owner(request, id):
+    owner = get_object_or_404(Owner, id=id)
+    if request.method == 'POST':
+        form = OwnerForm(request.POST, instance=owner)
+        if form.is_valid():
+            form.save()
+            return redirect('owners_list')
+    else:
+        form = OwnerForm(instance=owner)
+    return render(request, 'owners/edit_owner.html', {'form': form, 'owner': owner})
+
+
+# Представление для удаления владельца
+def delete_owner(request, id):
+    owner = get_object_or_404(Owner, id=id)
+    if request.method == 'POST':
+        owner.delete()
+        return redirect('owners_list')
+    return render(request, 'owners/confirm_delete_owner.html', {'owner': owner})
+```
+
+Для представлений создадим html-шаблоны:
+
+```html title="django_project_klimenkov/templates/owners/create_owner.html"
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Добавить автовладельца</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css'%}" type="text/css">
+</head>
+<body>
+
+    <h1>Добавить автовладельца</h1>
+    
+    <form method="post" class="form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="buttons">
+            <button type="submit">Добавить</button>
+            <a href="{% url 'owners_list' %}">Отмена</a>
+        </div>
+    </form>
+</body>
+</html>
+```
+
+```html title="django_project_klimenkov/templates/owners/edit_owner.html"
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Изменить автовладельца</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css'%}" type="text/css">
+</head>
+<body>
+    
+    <h1>Изменить автовладельца: {{ owner.first_name }} {{ owner.last_name }} (ID: {{ owner.id }})</h1>
+    
+    <form method="post" class="form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="buttons">
+            <button type="submit">Сохранить</button>
+            <a href="{% url 'owners_list' %}">Отмена</a>
+        </div>
+    </form>
+</body>
+</html>
+```
+
+```html title="django_project_klimenkov/templates/owners/confirm_delete_owner.html"
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение удаления</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css'%}" type="text/css">
+</head>
+<body>
+    <h1>Подтверждение удаления</h1>
+
+    <div class="form">
+        <p>Вы уверены, что хотите удалить автовладельца:</p>
+        <p><strong>{{ owner.first_name }} {{ owner.last_name }} (ID: {{ owner.id }})</strong>?</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="buttons">
+                <button type="submit" class="delete">Да, удалить</button>
+                <a href="{% url 'owners_list' %}">Отмена</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+```
+
+Зарегистрируем представления в `urls.py`:
+
+```python title="django_project_klimenkov/project_first_app/urls.py"
+urlpatterns = [
+    path('', views.root_redirect),
+
+    # Владельцы
+    path('owner/list/', views.owners_list, name='owners_list'),
+    path('owner/<int:id>/', views.owner_detail, name='owner_detail'),
+
+    # Зарегистрируем представления для создания, редактирования и удаления
+    path('owner/create/', views.create_owner, name='create_owner'),
+    path('owner/edit/<int:id>/', views.edit_owner, name='edit_owner'),
+    path('owner/delete/<int:id>/', views.delete_owner, name='delete_owner'),
+
+    # Автомобили
+    path('car/list/', views.CarsListView.as_view(), name='cars_list'),
+    path('car/<int:car_id>/', views.CarDetailView.as_view(), name='car_detail'),
+]
+```
+
+Также добавим соответствующие кнопки в `owners_list.html`:
+
+```html title="django_project_klimenkov/templates/owners/owners_list.html"
+<h1>Список автовладельцев</h1>
+
+    <!-- Кнопка для добавления владельца -->
+    <a href="{% url 'create_owner' %}" class="create-button">Добавить автовладельца</a>
+    
+    {% if owners %}
+        <table class="table">
+
+<!-- ... -->
+
+            <td>
+                <a href="{% url 'owner_detail' owner.id %}">
+                    Подробнее
+                </a>
+            </td>
+            <td>
+                <!-- Кнопка для изменения владельца -->
+                <a href="{% url 'edit_owner' owner.id %}">
+                    Изменить
+                </a>
+            </td>
+            <td>
+                <!-- Кнопка для удаления владельца -->
+                <a href="{% url 'delete_owner' owner.id %}" class="delete">
+                    Удалить
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+```
