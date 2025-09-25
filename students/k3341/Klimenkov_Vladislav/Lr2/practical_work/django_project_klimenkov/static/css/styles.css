@@ -173,3 +173,7 @@ body {
     color: var(--red);
     border: 1px solid var(--red);
 }
+
+.form .errorlist {
+    color: var(--red);
+}

@@ -483,7 +483,7 @@ urlpatterns = [
     path('owner/list/', views.owners_list, name='owners_list'),
     path('owner/<int:id>/', views.owner_detail, name='owner_detail'),
 
-    # Зарегистрируем представления для создания, редактирования и удаления
+    # Зарегистрируем представления для создания, редактирования и удаления владельцев
     path('owner/create/', views.create_owner, name='create_owner'),
     path('owner/edit/<int:id>/', views.edit_owner, name='edit_owner'),
     path('owner/delete/<int:id>/', views.delete_owner, name='delete_owner'),
@@ -529,3 +529,84 @@ urlpatterns = [
     </tbody>
 </table>
 ```
+
+В результате для автовладельцев был реализован функционал добавления, изменения и удаления:
+
+![6](../img/lab_2/pw_2/6.png)
+
+![7](../img/lab_2/pw_2/7.png)
+
+![8](../img/lab_2/pw_2/8.png)
+
+![9](../img/lab_2/pw_2/9.png)
+
+![10](../img/lab_2/pw_2/10.png)
+
+![11](../img/lab_2/pw_2/11.png)
+
+![12](../img/lab_2/pw_2/12.png)
+
+Теперь реализуем аналогичный функционал для автомобилей, но на основе классов.
+
+Создадим соответствующие представления на основе классов:
+
+```python title="django_project_klimenkov/project_first_app/views.py"
+# Добавить автомобиль
+class CarCreateView(CreateView):
+    model = Car
+    template_name = 'cars/create_car.html'
+    fields = ['license_plate', 'model', 'color']
+    success_url = reverse_lazy('cars_list')
+
+
+# Изменить автомобиль
+class CarUpdateView(UpdateView):
+    model = Car
+    template_name = 'cars/edit_car.html'
+    fields = ['license_plate', 'model', 'color']
+    success_url = reverse_lazy('cars_list')
+    context_object_name = 'car'
+    pk_url_kwarg = 'car_id'
+
+
+# Удалить автомобиль
+class CarDeleteView(DeleteView):
+    model = Car
+    template_name = 'cars/confirm_delete_car.html'
+    success_url = reverse_lazy('cars_list')
+    context_object_name = 'car'
+    pk_url_kwarg = 'car_id'
+```
+
+Добавим представления в `urls.py`:
+
+```python title="django_project_klimenkov/project_first_app/urls.py"
+# Автомобили
+path('car/list/', views.CarsListView.as_view(), name='cars_list'),
+path('car/<int:car_id>/', views.CarDetailView.as_view(), name='car_detail'),
+
+# Добавим эти url-адреса
+path('car/create/', views.CarCreateView.as_view(), name='create_car'),
+path('car/edit/<int:car_id>/', views.CarUpdateView.as_view(), name='edit_car'),
+path('car/delete/<int:car_id>/', views.CarDeleteView.as_view(), name='delete_car'),
+```
+
+Создадим html-шаблоны `django_project_klimenkov/templates/cars/create_car.html`, `django_project_klimenkov/templates/cars/edit_car.html` и `django_project_klimenkov/templates/cars/confirm_delete_car.html` аналогичные таковым для работы с владельцами.
+
+Также добавим в html-шаблон `django_project_klimenkov/templates/cars/cars_list.html` кнопки для реализации соответствующего функционала (аналогично таковым в случае с владельцами).
+
+В результате получаем аналогичный функционал для добавления, изменения и удаления автомобилей, но на основе классов:
+
+![13](../img/lab_2/pw_2/13.png)
+
+![14](../img/lab_2/pw_2/14.png)
+
+![15](../img/lab_2/pw_2/15.png)
+
+![16](../img/lab_2/pw_2/16.png)
+
+![17](../img/lab_2/pw_2/17.png)
+
+![18](../img/lab_2/pw_2/18.png)
+
+![19](../img/lab_2/pw_2/19.png)

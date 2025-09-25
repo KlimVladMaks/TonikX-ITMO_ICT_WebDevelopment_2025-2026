@@ -15,6 +15,8 @@
     </div>
 
     <h1>Список автомобилей</h1>
+
+    <a href="{% url 'create_car' %}" class="create-button">Добавить автомобиль</a>
     
     {% if cars %}
         <table class="table">
@@ -23,6 +25,8 @@
                     <th>ID</th>
                     <th>Модель</th>
                     <th>Гос. номер</th>
+                    <th></th>
+                    <th></th>
                     <th></th>
                 </tr>
             </thead>
@@ -35,6 +39,16 @@
                     <td>
                         <a href="{% url 'car_detail' car.car_id %}">
                             Подробнее
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'edit_car' car.car_id %}">
+                            Изменить
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'delete_car' car.car_id %}" class="delete">
+                            Удалить
                         </a>
                     </td>
                 </tr>
