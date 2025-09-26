@@ -5,7 +5,7 @@ from .models import Owner
 class OwnerForm(forms.ModelForm):
     class Meta:
         model = Owner
-        fields = ['username', 'password', 'first_name', 'last_name', 'birth_date']
+        fields = ['username', 'password', 'first_name', 'last_name', 'birth_date', 'passport_number', 'address', 'nationality']
         widgets = {
             'birth_date': forms.DateInput(attrs={'type': 'date'})
         }

@@ -4,6 +4,9 @@ from django.contrib.auth.models import AbstractUser
 
 class Owner(AbstractUser):
     birth_date = models.DateField(null=True, blank=True)
+    passport_number = models.CharField(max_length=10, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    nationality = models.CharField(max_length=100, null=True, blank=True)
     cars = models.ManyToManyField('Car', through='Ownership')
 
     def __str__(self):

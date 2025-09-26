@@ -4,7 +4,7 @@ from .models import Owner, Car, DrivingLicense, Ownership
 
 @admin.register(Owner)
 class OwnerAdmin(admin.ModelAdmin):
-    list_display = ['id', 'first_name', 'last_name', 'birth_date']
+    list_display = ['id', 'username', 'last_name', 'first_name', 'birth_date', 'passport_number', 'address', 'nationality']
 
 
 @admin.register(Car)
