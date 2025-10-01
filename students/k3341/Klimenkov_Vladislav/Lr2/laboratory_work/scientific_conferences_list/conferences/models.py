@@ -15,7 +15,7 @@ class Conference(models.Model):
         ordering = ['start_date']
 
     def __str__(self):
-        return f'{self.name} ({self.start_date} — {self.end_date})'
+        return f'{self.name} ({self.start_date} - {self.end_date})'
 
 
 class Topic(models.Model):
