@@ -28,3 +28,7 @@ class CustomLogoutView(LogoutView):
 
 class ConfirmLogoutView(LoginRequiredMixin, TemplateView):
     template_name = 'users/logout.html'
+
+
+class WelcomeView(TemplateView):
+    template_name = 'users/welcome.html'
