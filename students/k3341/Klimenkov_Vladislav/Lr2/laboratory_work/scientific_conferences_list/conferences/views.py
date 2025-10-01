@@ -1,3 +1,8 @@
-from django.shortcuts import render
+from django.views.generic import ListView
+from .models import Conference
 
-# Create your views here.
+
+class ConferencesList(ListView):
+    model = Conference
+    template_name = 'conferences/conferences_list.html'
+    context_object_name = 'conferences'

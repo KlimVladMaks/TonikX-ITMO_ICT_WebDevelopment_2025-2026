@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Список научных конференций</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>Список научных конференций</h1>
+
+    <!-- Список конференций -->
+    <div class="conferences-list">
+        {% for conference in conferences %}
+
+        <!-- Карточка конференции -->
+        <div class="conference-card">
+            <h2>{{ conference.name }}</h2>
+            <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
+            <p><strong>Место:</strong> {{ conference.venue_name }}</p>
+            <p>
+                <strong>Темы:</strong>
+                {% for topic in conference.topics.all %}
+                <span class="topic-tag">{{ topic.title }}</span>{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                Не указаны
+                {% endfor %}
+            </p>
+            <a href="">Подробнее</a>
+        </div>
+        {% empty %}
+        <p>Конференций не найдено.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
