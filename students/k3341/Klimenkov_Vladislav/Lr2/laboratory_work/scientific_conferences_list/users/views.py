@@ -1,7 +1,9 @@
-from django.views.generic import CreateView
-from django.views import View
-from django.urls import reverse_lazy
+from django.views.generic import CreateView, TemplateView
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.shortcuts import render
 from .forms import SignUpForm
 from .models import User
 
@@ -13,7 +15,16 @@ class CustomSignUpView(CreateView):
     success_url = reverse_lazy('login')
 
 
-class CustomLoginView(View):
+class CustomLoginView(LoginView):
     form_class = AuthenticationForm
     template_name = 'users/login.html'
-    # success_url = reverse_lazy('main_menu')
+    # success_url = reverse_lazy('')
+
+
+class CustomLogoutView(LogoutView):
+    # next_page = reverse_lazy('login')
+    pass
+
+
+class ConfirmLogoutView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/logout.html'

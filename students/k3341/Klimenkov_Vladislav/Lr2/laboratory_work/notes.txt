@@ -24,4 +24,5 @@ Password: 12345
 
 # Миграция БД:
 python3 manage.py makemigrations <название_приложения>
+python3 manage.py makemigrations
 python3 manage.py migrate
