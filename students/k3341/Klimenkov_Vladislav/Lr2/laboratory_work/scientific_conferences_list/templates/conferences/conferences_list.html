@@ -7,6 +7,13 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 </head>
 <body>
+    <!-- Верхнее меню -->
+    <div class="menu">
+        <p>Username: {{ user.username }}</p>
+        <a href="">Профиль</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+    </div>
+
     <h1>Список научных конференций</h1>
 
     <!-- Список конференций -->

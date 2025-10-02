@@ -18,12 +18,7 @@ class CustomSignUpView(CreateView):
 class CustomLoginView(LoginView):
     form_class = AuthenticationForm
     template_name = 'users/login.html'
-    # success_url = reverse_lazy('')
-
-
-class CustomLogoutView(LogoutView):
-    # next_page = reverse_lazy('login')
-    pass
+    success_url = reverse_lazy('conferences_list')
 
 
 class ConfirmLogoutView(LoginRequiredMixin, TemplateView):

@@ -26,3 +26,7 @@ Password: 12345
 python3 manage.py makemigrations <название_приложения>
 python3 manage.py makemigrations
 python3 manage.py migrate
+
+# Тестовый пользователь:
+Username: test
+Password: V6t-mf9-vYX-NeC

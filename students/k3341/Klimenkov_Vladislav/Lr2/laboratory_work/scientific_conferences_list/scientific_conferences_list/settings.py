@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,16 @@ ALLOWED_HOSTS = []
 # Application definition
 
 AUTH_USER_MODEL = 'users.User'
+
+# Перенаправление пользователя после успешного входа
+LOGIN_REDIRECT_URL = reverse_lazy('conferences_list')
+
+# Перенаправление не авторизированных пользователей
+# при попытке доступа к ресурсам только для авторизированных пользователей
+LOGIN_URL = reverse_lazy('login')
+
+# Перенаправление пользователя после успешного выхода
+LOGOUT_REDIRECT_URL = reverse_lazy('welcome')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
