@@ -5,6 +5,7 @@ from .views import (CustomSignUpView,
                     ConfirmLogoutView,
                     WelcomeView)
 
+
 urlpatterns = [
     path('signup/', CustomSignUpView.as_view(), name='signup'),
     path('login/', CustomLoginView.as_view(), name="login"),

@@ -16,9 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .views import root_redirect
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('conferences/', include('conferences.urls')),
+    path('', root_redirect, name='root_redirect')
 ]
