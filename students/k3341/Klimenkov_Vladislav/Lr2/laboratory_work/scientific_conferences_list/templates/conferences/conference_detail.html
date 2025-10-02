@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ conference.name }}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    <a href="javascript:history.back()">← Назад</a>
+
+    <h1>{{ conference.name }}</h1>
+
+    <h2>Даты проведения:</h2>
+    <p>{{ conference.start_date }} - {{ conference.end_date }}</p>
+
+    <h2>Место проведения:</h2>
+    <p>{{ conference.venue_name }}</p>
+
+    <h2>Описание:</h2>
+    <p>{{ conference.description }}</p>
+
+    <h2>Темы:</h2>
+    <p>{{ conference.topics }}</p>
+
+    <h2>Условия участия:</h2>
+    <p>{{ conference.participation_conditions }}</p>
+
+    <h2>Описание места проведения:</h2>
+    <p>{{ conference.venue_description }}</p>
+</body>
+</html>
