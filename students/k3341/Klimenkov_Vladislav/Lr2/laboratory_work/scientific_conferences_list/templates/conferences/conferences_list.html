@@ -29,7 +29,7 @@
             <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
             <p><strong>Место:</strong> {{ conference.venue_name }}</p>
             <p><strong>Темы:</strong> {{ conference.topics | default:"Не указаны" }}</p>
-            <a href="">Подробнее</a>
+            <a href="{% url 'conference_detail' conference.pk %}">Подробнее</a>
         </div>
         {% empty %}
         <p>Конференций не найдено.</p>

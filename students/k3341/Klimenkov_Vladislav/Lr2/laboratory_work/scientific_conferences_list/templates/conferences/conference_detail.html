@@ -15,18 +15,18 @@
     <p>{{ conference.start_date }} - {{ conference.end_date }}</p>
 
     <h2>Место проведения:</h2>
-    <p>{{ conference.venue_name }}</p>
+    <p>{{ conference.venue_name | default:"Не указано" }}</p>
 
     <h2>Описание:</h2>
-    <p>{{ conference.description }}</p>
+    <p>{{ conference.description | default:"Не указано" }}</p>
 
     <h2>Темы:</h2>
-    <p>{{ conference.topics }}</p>
+    <p>{{ conference.topics | default:"Не указаны" }}</p>
 
     <h2>Условия участия:</h2>
-    <p>{{ conference.participation_conditions }}</p>
+    <p>{{ conference.participation_conditions | default:"Не указаны" }}</p>
 
     <h2>Описание места проведения:</h2>
-    <p>{{ conference.venue_description }}</p>
+    <p>{{ conference.venue_description | default:"Не указано" }}</p>
 </body>
 </html>
