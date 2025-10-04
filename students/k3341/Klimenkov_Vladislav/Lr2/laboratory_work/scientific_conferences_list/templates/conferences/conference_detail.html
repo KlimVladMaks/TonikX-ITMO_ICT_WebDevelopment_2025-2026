@@ -7,11 +7,11 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 </head>
 <body>
-    <a href="javascript:history.back()">← Назад</a>
+    <a href="{% url 'conferences_list' %}">← К списку конференций</a>
 
     <h1>{{ conference.name }}</h1>
 
-    <a href="">Зарегистрировать своё выступление</a>
+    <a href="{% url 'register_presentation' conference.pk %}">Зарегистрировать своё выступление</a>
 
     <h2>Даты проведения:</h2>
     <p>{{ conference.start_date }} - {{ conference.end_date }}</p>
