@@ -7,8 +7,19 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 </head>
 <body>
+    <div class="menu">
+        <p>Username: {{ user.username }}</p>
+        <a href="">Профиль</a>
+        <a href="/admin/">Админ-панель</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+    </div>
+
     <h1>Регистрация своего выступления на конференции</h1>
-    <p><strong>Конференция:</strong> {{ conference.title }}</p>
+
+    <p><strong>Конференция:</strong> {{ conference.name }}</p>
+    <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
+    <p><strong>Место:</strong> {{ conference.venue_name }}</p>
+
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
