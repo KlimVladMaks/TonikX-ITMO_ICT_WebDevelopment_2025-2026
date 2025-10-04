@@ -1,5 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from .models import Conference, Presentation
 from .forms import RegisterPresentationForm
 
@@ -21,3 +23,20 @@ class RegisterPresentationView(LoginRequiredMixin, CreateView):
     model = Presentation
     form_class = RegisterPresentationForm
     template_name = 'conferences/register_presentation.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['pk'])
+        context['conference'] = conference
+        return context
+
+    def form_valid(self, form):
+        conference = get_object_or_404(Conference, pk=self.kwargs['pk'])
+        presentation = form.save(commit=False)
+        presentation.author = self.request.user
+        presentation.conference = conference
+        presentation.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['pk']})
