@@ -1,4 +1,5 @@
 from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic.edit import DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
@@ -13,7 +14,7 @@ class ConferencesListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
 
-class ConferenceDetailView(DetailView):
+class ConferenceDetailView(LoginRequiredMixin, DetailView):
     model = Conference
     template_name = 'conferences/conference_detail.html'
     context_object_name = 'conference'
@@ -27,6 +28,7 @@ class ConferenceDetailView(DetailView):
         )
         context['user_presentations'] = user_presentations
         return context
+
 
 class RegisterPresentationView(LoginRequiredMixin, CreateView):
     model = Presentation
@@ -49,3 +51,19 @@ class RegisterPresentationView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['pk']})
+
+
+class CancelPresentationView(LoginRequiredMixin, DeleteView):
+    model = Presentation
+    template_name = 'conferences/cancel_presentation.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        presentation = get_object_or_404(Presentation, pk=self.kwargs['presentation_id'])
+        context['presentation'] = presentation
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['conference_id']})
