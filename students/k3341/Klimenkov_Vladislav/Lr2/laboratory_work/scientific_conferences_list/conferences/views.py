@@ -18,6 +18,15 @@ class ConferenceDetailView(DetailView):
     template_name = 'conferences/conference_detail.html'
     context_object_name = 'conference'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = self.object
+        user_presentations = Presentation.objects.filter(
+            conference=conference, 
+            author=self.request.user
+        )
+        context['user_presentations'] = user_presentations
+        return context
 
 class RegisterPresentationView(LoginRequiredMixin, CreateView):
     model = Presentation

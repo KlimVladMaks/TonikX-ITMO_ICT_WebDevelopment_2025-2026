@@ -20,6 +20,16 @@
 
     <a href="{% url 'register_presentation' conference.pk %}">Зарегистрировать своё выступление</a>
 
+    {% if user_presentations %}
+    <h2>Ваши выступления:</h2>
+    {% for presentation in user_presentations %}
+        <p>{{presentation.title}}</p>
+        <a href="">Подробнее</a>
+        <a href="">Изменить</a>
+        <a href="">Удалить</a>
+    {% endfor %}
+    {% endif %}
+
     <h2>Даты проведения:</h2>
     <p>{{ conference.start_date }} - {{ conference.end_date }}</p>
 
