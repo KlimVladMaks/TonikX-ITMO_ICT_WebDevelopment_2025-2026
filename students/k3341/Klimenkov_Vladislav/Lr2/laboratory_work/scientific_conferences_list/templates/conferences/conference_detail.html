@@ -26,7 +26,9 @@
         <p>{{presentation.title}}</p>
         <a href="">Подробнее</a>
         <a href="">Изменить</a>
-        <a href="">Удалить</a>
+        <a href="{% url 'cancel_presentation' conference_id=conference.id presentation_id=presentation.id %}">
+            Удалить
+        </a>
     {% endfor %}
     {% endif %}
 

@@ -56,13 +56,16 @@ class RegisterPresentationView(LoginRequiredMixin, CreateView):
 class CancelPresentationView(LoginRequiredMixin, DeleteView):
     model = Presentation
     template_name = 'conferences/cancel_presentation.html'
+    context_object_name = 'presentation'
+
+    def get_object(self, queryset=None):
+        presentation = get_object_or_404(Presentation, pk=self.kwargs['presentation_id'])
+        return presentation
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
         context['conference'] = conference
-        presentation = get_object_or_404(Presentation, pk=self.kwargs['presentation_id'])
-        context['presentation'] = presentation
         return context
     
     def get_success_url(self):
