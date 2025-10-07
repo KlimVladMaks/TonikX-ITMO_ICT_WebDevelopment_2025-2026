@@ -25,7 +25,9 @@
     {% for presentation in user_presentations %}
         <p>{{presentation.title}}</p>
         <a href="">Подробнее</a>
-        <a href="">Изменить</a>
+        <a href="{% url 'edit_presentation' conference_id=conference.id presentation_id=presentation.id %}">
+            Изменить
+        </a>
         <a href="{% url 'cancel_presentation' conference_id=conference.id presentation_id=presentation.id %}">
             Удалить
         </a>
