@@ -52,6 +52,9 @@
     <h2>Описание места проведения:</h2>
     <p>{{ conference.venue_description | default:"Не указано" }}</p>
 
-    <a href="{% url 'reviews_list' conference_id=conference.id %}">Отзывы о конференции</a>
+    <h2>Отзывы о конференции:</h2>
+    <a href="{% url 'add_review' conference.id %}">Добавить отзыв</a>
+    <a href="">Мои отзывы</a>
+    <a href="{% url 'reviews_list' conference_id=conference.id %}">Все отзывы</a>
 </body>
 </html>
