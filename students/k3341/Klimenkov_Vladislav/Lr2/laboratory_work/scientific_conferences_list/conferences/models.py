@@ -20,13 +20,20 @@ class Conference(models.Model):
 
 
 class Presentation(models.Model):
+    RECOMMENDATION_CHOICES = [
+        (None, "Не оценено"),
+        (True, "Рекомендован"),
+        (False, "Не рекомендован"),
+    ]
+
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     conference = models.ForeignKey(Conference, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    recommendation = models.BooleanField(choices=RECOMMENDATION_CHOICES, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.title} — {self.author}"
+        return f"{self.title} | {self.author}"
 
 
 class Review(models.Model):
