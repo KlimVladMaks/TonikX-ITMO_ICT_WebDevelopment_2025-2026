@@ -27,3 +27,15 @@ class Presentation(models.Model):
 
     def __str__(self):
         return f"{self.title} — {self.author}"
+
+
+class Review(models.Model):
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 11)]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    conference = models.ForeignKey(Conference, on_delete=models.CASCADE)
+    text = models.TextField()
+    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+
+    def __str__(self):
+        return f"Отзыв #{self.pk} - {self.rating}"
