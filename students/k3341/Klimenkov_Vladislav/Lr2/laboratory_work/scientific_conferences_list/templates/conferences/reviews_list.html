@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Отзывы о конференции "{{ conference.name }}"</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    <div class="menu">
+        <p>Username: {{ user.username }}</p>
+        <a href="">Профиль</a>
+        <a href="/admin/">Админ-панель</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+    </div>
+
+    <a href="{% url 'conference_detail' conference.id %}">← К странице конференции</a>
+
+    <h1>Отзывы о конференции "{{ conference.name }}"</h1>
+
+    <a href="">Добавить отзыв</a>
+
+    <div class="reviews-list">
+    {% for review in reviews %}
+    <div class="review-card">
+        <p>Автор: {{ review.user.username }}</p>
+        <p>Оценка: {{ review.rating }}</p>
+        <p>{{ review.text }}</p>
+    </div>
+    {% empty %}
+    <p>Нет отзывов.</p>
+    {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">Первая</a>
+        <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+        {% endif %}
+
+        <span class="current-page">
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</body>
+</html>

@@ -3,7 +3,7 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from .models import Conference, Presentation
+from .models import Conference, Presentation, Review
 from .forms import RegisterPresentationForm
 
 
@@ -90,3 +90,16 @@ class EditPresentationView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['conference_id']})
+
+
+class ReviewsListView(LoginRequiredMixin, ListView):
+    model = Review
+    template_name = 'conferences/reviews_list.html'
+    context_object_name = 'reviews'
+    paginate_by = 10
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
