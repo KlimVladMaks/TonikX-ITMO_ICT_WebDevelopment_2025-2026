@@ -8,10 +8,12 @@
 </head>
 <body>
     <h1>Список научных конференций</h1>
-    <a href="{% url 'login' %}">Войти</a>
-    </br>
-    <a href="{% url 'signup' %}">Регистрация</a>
-    </br>
-    <a href="/admin/">Админ-панель</a>
+    <div class="welcome">
+        <a href="{% url 'login' %}" class="blue-button mt-20">Войти</a>
+        </br>
+        <a href="{% url 'signup' %}" class="blue-button mt-20">Регистрация</a>
+        </br>
+        <a href="/admin/" class="blue-button mt-20">Админ-панель</a>
+    </div>
 </body>
 </html>

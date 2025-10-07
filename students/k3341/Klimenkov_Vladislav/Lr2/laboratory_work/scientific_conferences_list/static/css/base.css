@@ -96,3 +96,14 @@ a.blue-button:hover {
     padding: 10px;
     line-height: 1.6;
 }
+
+/* === WELCOME === */
+
+.welcome {
+    line-height: 1.6;
+}
+
+.welcome a {
+    text-align: center;
+    width: 200px;
+}
