@@ -18,7 +18,7 @@
 
     <h1>Отзывы о конференции "{{ conference.name }}"</h1>
 
-    <a href="">Добавить отзыв</a>
+    <a href="{% url 'add_review' conference.id %}">Добавить отзыв</a>
 
     <div class="reviews-list">
     {% for review in reviews %}

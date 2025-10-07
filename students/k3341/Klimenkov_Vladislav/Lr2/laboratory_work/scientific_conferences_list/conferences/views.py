@@ -103,3 +103,26 @@ class ReviewsListView(LoginRequiredMixin, ListView):
         conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
         context['conference'] = conference
         return context
+
+
+class AddReviewView(LoginRequiredMixin, CreateView):
+    model = Review
+    fields = ['rating', 'text']
+    template_name = 'conferences/add_review.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
+
+    def form_valid(self, form):
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        review = form.save(commit=False)
+        review.user = self.request.user
+        review.conference = conference
+        review.save()
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('reviews_list', kwargs={'conference_id': self.kwargs['conference_id']})
