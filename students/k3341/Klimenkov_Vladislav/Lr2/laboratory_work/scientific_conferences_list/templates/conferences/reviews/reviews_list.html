@@ -23,8 +23,8 @@
     <div class="reviews-list">
     {% for review in reviews %}
     <div class="review-card">
-        <p>Автор: {{ review.user.username }}</p>
-        <p>Оценка: {{ review.rating }}</p>
+        <p><strong>Автор:</strong> {{ review.user.username }}</p>
+        <p><strong>Оценка:</strong> {{ review.rating }}</p>
         <p>{{ review.text }}</p>
     </div>
     {% empty %}

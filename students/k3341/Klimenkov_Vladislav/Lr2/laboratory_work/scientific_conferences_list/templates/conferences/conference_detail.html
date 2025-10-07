@@ -34,6 +34,9 @@
     {% endfor %}
     {% endif %}
 
+    <h2>Список выступлений:</h2>
+    <a href="{% url 'presentations_list' conference.id %}">Все выступления</a>
+
     <h2>Даты проведения:</h2>
     <p>{{ conference.start_date }} - {{ conference.end_date }}</p>
 

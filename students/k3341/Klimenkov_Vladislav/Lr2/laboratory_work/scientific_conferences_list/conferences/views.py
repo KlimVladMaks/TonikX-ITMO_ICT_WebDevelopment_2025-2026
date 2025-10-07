@@ -6,6 +6,7 @@ from django.urls import reverse_lazy
 from .models import Conference, Presentation, Review
 from .forms import RegisterPresentationForm
 
+# === КОНФЕРЕНЦИИ ===
 
 class ConferencesListView(LoginRequiredMixin, ListView):
     model = Conference
@@ -30,10 +31,13 @@ class ConferenceDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+# === ВЫСТУПЛЕНИЯ ===
+
+
 class RegisterPresentationView(LoginRequiredMixin, CreateView):
     model = Presentation
     form_class = RegisterPresentationForm
-    template_name = 'conferences/register_presentation.html'
+    template_name = 'conferences/presentations/register_presentation.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -55,7 +59,7 @@ class RegisterPresentationView(LoginRequiredMixin, CreateView):
 
 class CancelPresentationView(LoginRequiredMixin, DeleteView):
     model = Presentation
-    template_name = 'conferences/cancel_presentation.html'
+    template_name = 'conferences/presentations/cancel_presentation.html'
     context_object_name = 'presentation'
 
     def get_object(self, queryset=None):
@@ -75,7 +79,7 @@ class CancelPresentationView(LoginRequiredMixin, DeleteView):
 class EditPresentationView(LoginRequiredMixin, UpdateView):
     model = Presentation
     fields = ['title', 'description']
-    template_name = 'conferences/edit_presentation.html'
+    template_name = 'conferences/presentations/edit_presentation.html'
     context_object_name = 'presentation'
 
     def get_object(self, queryset=None):
@@ -92,9 +96,29 @@ class EditPresentationView(LoginRequiredMixin, UpdateView):
         return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['conference_id']})
 
 
+class PresentationsListView(LoginRequiredMixin, ListView):
+    model = Presentation
+    template_name = 'conferences/presentations_list.html'
+    context_object_name = 'presentations'
+    paginate_by = 20
+
+    def get_queryset(self):
+        conference_id = self.kwargs.get('conference_id')
+        return Presentation.objects.filter(conference_id=conference_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
+
+
+# === ОТЗЫВЫ ===
+
+
 class ReviewsListView(LoginRequiredMixin, ListView):
     model = Review
-    template_name = 'conferences/reviews_list.html'
+    template_name = 'conferences/reviews/reviews_list.html'
     context_object_name = 'reviews'
     paginate_by = 10
 
@@ -108,7 +132,7 @@ class ReviewsListView(LoginRequiredMixin, ListView):
 class AddReviewView(LoginRequiredMixin, CreateView):
     model = Review
     fields = ['rating', 'text']
-    template_name = 'conferences/add_review.html'
+    template_name = 'conferences/reviews/add_review.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
