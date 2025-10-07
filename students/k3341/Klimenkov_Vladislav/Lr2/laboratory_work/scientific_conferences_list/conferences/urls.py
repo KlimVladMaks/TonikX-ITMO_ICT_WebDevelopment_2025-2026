@@ -18,7 +18,7 @@ from .views import (ConferencesListView,
 urlpatterns = [
      path('list/', ConferencesListView.as_view(), name='conferences_list'),
      path('<int:pk>/', ConferenceDetailView.as_view(), name='conference_detail'),
-     path('<int:pk>/register-presentation/',
+     path('<int:pk>/presentations/register',
           RegisterPresentationView.as_view(), 
           name='register_presentation'),
      path('<int:conference_id>/presentations/<int:presentation_id>/cancel',
