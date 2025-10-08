@@ -44,6 +44,10 @@ a:hover {
     gap: 15px;
 }
 
+.lh16 {
+    line-height: 1.6;
+}
+
 /* === ВЕРХНЕЕ МЕНЮ === */
 
 .menu-table {

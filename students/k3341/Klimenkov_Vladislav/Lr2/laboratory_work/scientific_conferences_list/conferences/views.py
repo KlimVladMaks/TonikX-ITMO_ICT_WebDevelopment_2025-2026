@@ -98,7 +98,7 @@ class EditPresentationView(LoginRequiredMixin, UpdateView):
 
 class PresentationsListView(LoginRequiredMixin, ListView):
     model = Presentation
-    template_name = 'conferences/presentations_list.html'
+    template_name = 'conferences/presentations/presentations_list.html'
     context_object_name = 'presentations'
     paginate_by = 20
 

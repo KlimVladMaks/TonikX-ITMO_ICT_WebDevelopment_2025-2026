@@ -8,10 +8,12 @@
 </head>
 <body>
     <h1>Выйти из аккаунта?</h1>
-    <form action="{% url 'logout_perform' %}" method="post">
+    <form action="{% url 'logout_perform' %}" method="post" class="form mt-15">
         {% csrf_token %}
-        <button type="submit">Выйти</button>
-        <a href="javascript:history.back()">Отмена</a>
+        <div class="flex">
+            <button type="submit">Выйти</button>
+            <a href="javascript:history.back()">Отмена</a>
+        </div>
     </form>
 </body>
 </html>

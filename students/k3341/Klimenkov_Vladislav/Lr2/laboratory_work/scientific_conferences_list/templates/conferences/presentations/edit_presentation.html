@@ -7,24 +7,32 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 </head>
 <body>
-    <div class="menu">
-        <p>Username: {{ user.username }}</p>
-        <a href="">Профиль</a>
-        <a href="/admin/">Админ-панель</a>
-        <a href="{% url 'logout' %}">Выйти</a>
+    <!-- Верхнее меню -->
+    <table class="menu-table">
+        <tr>
+            <td><strong>Username:</strong> {{ user.username }}</td>
+            <td><a href="">Профиль</a></td>
+            <td><a href="/admin/">Админ-панель</a></td>
+            <td><a href="{% url 'logout' %}">Выйти</a></td>
+        </tr>
+    </table>
+
+    <h1 class="mt-15">Редактирование своего выступления на конференции</h1>
+
+    <div class="card mt-15 lh16">
+        <p><strong>Конференция:</strong> {{ conference.name }}</p>
+        <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
+        <p><strong>Место:</strong> {{ conference.venue_name }}</p>
     </div>
 
-    <h1>Редактирование своего выступления на конференции</h1>
-
-    <p><strong>Конференция:</strong> {{ conference.name }}</p>
-    <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
-    <p><strong>Место:</strong> {{ conference.venue_name }}</p>
-
-    <form method="post">
+    <br>
+    <form method="post" class="form mt-15">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Сохранить</button>
-        <a href="javascript:history.back()">Отмена</a>
+        <div class="buttons">
+            <button type="submit">Сохранить</button>
+            <a href="javascript:history.back()">Отмена</a>
+        </div>
     </form>
 </body>
 </html>
