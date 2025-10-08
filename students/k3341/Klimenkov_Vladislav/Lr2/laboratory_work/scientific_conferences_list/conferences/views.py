@@ -3,6 +3,7 @@ from django.views.generic.edit import DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.core.exceptions import PermissionDenied
 from .models import Conference, Presentation, Review
 from .forms import RegisterPresentationForm
 
@@ -64,6 +65,8 @@ class CancelPresentationView(LoginRequiredMixin, DeleteView):
 
     def get_object(self, queryset=None):
         presentation = get_object_or_404(Presentation, pk=self.kwargs['presentation_id'])
+        if presentation.author != self.request.user:
+            raise PermissionDenied("Вы можете отменять только свои выступления")
         return presentation
 
     def get_context_data(self, **kwargs):
@@ -84,6 +87,8 @@ class EditPresentationView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         presentation = get_object_or_404(Presentation, pk=self.kwargs['presentation_id'])
+        if presentation.author != self.request.user:
+            raise PermissionDenied("Вы можете изменять только свои выступления")
         return presentation
     
     def get_context_data(self, **kwargs):
