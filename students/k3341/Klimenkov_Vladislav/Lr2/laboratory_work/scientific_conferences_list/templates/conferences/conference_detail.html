@@ -7,57 +7,93 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 </head>
 <body>
-    <div class="menu">
-        <p>Username: {{ user.username }}</p>
-        <a href="">Профиль</a>
-        <a href="/admin/">Админ-панель</a>
-        <a href="{% url 'logout' %}">Выйти</a>
-    </div>
+    <!-- Верхнее меню -->
+    <table class="menu-table mb-20">
+        <tr>
+            <td><strong>Username:</strong> {{ user.username }}</td>
+            <td><a href="">Профиль</a></td>
+            <td><a href="/admin/">Админ-панель</a></td>
+            <td><a href="{% url 'logout' %}">Выйти</a></td>
+        </tr>
+    </table>
 
     <a href="{% url 'conferences_list' %}">← К списку конференций</a>
 
-    <h1>{{ conference.name }}</h1>
+    <h1 class="mt-15">{{ conference.name }}</h1>
 
-    <a href="{% url 'register_presentation' conference.pk %}">Зарегистрировать своё выступление</a>
+    <a href="{% url 'register_presentation' conference.pk %}" class="blue-button mt-15">
+        Зарегистрировать своё выступление
+    </a>
 
     {% if user_presentations %}
-    <h2>Мои выступления:</h2>
-    {% for presentation in user_presentations %}
-        <p>{{presentation.title}}</p>
-        <a href="">Подробнее</a>
-        <a href="{% url 'edit_presentation' conference_id=conference.id presentation_id=presentation.id %}">
-            Изменить
-        </a>
-        <a href="{% url 'cancel_presentation' conference_id=conference.id presentation_id=presentation.id %}">
-            Удалить
-        </a>
-    {% endfor %}
+    <br>
+    <div class="card mt-20">
+        <h2>Мои выступления:</h2>
+        {% for presentation in user_presentations %}
+            <p class="mt-15"><strong>{{presentation.title}}</strong></p>
+            <div class="flex">
+                <a href="">Подробнее</a>
+                <a href="{% url 'edit_presentation' conference_id=conference.id presentation_id=presentation.id %}">
+                    Изменить
+                </a>
+                <a href="{% url 'cancel_presentation' conference_id=conference.id presentation_id=presentation.id %}">
+                    Удалить
+                </a>
+            </div>
+        {% endfor %}
+    </div>
     {% endif %}
 
-    <h2>Список выступлений:</h2>
-    <a href="{% url 'presentations_list' conference.id %}">Все выступления</a>
+    <br>
+    <div class="card mt-15">
+        <h2>Список выступлений:</h2>
+        <a href="{% url 'presentations_list' conference.id %}">Все выступления</a>
+    </div>
 
-    <h2>Даты проведения:</h2>
-    <p>{{ conference.start_date }} - {{ conference.end_date }}</p>
+    <br>
+    <div class="card mt-15">
+        <h2>Даты проведения:</h2>
+        <p>{{ conference.start_date }} - {{ conference.end_date }}</p>
+    </div>
 
-    <h2>Место проведения:</h2>
-    <p>{{ conference.venue_name | default:"Не указано" }}</p>
+    <br>
+    <div class="card mt-15">
+        <h2>Место проведения:</h2>
+        <p>{{ conference.venue_name | default:"Не указано" }}</p>
+    </div>
 
-    <h2>Описание:</h2>
-    <p>{{ conference.description | default:"Не указано" }}</p>
+    <br>
+    <div class="card mt-15">
+        <h2>Описание:</h2>
+        <p>{{ conference.description | default:"Не указано" }}</p>
+    </div>
 
-    <h2>Темы:</h2>
-    <p>{{ conference.topics | default:"Не указаны" }}</p>
+    <br>
+    <div class="card mt-15">
+        <h2>Темы:</h2>
+        <p>{{ conference.topics | default:"Не указаны" }}</p>
+    </div>
 
-    <h2>Условия участия:</h2>
-    <p>{{ conference.participation_conditions | default:"Не указаны" }}</p>
+    <br>
+    <div class="card mt-15">
+        <h2>Условия участия:</h2>
+        <p>{{ conference.participation_conditions | default:"Не указаны" }}</p>
+    </div>
 
-    <h2>Описание места проведения:</h2>
-    <p>{{ conference.venue_description | default:"Не указано" }}</p>
+    <br>
+    <div class="card mt-15">
+        <h2>Описание места проведения:</h2>
+        <p>{{ conference.venue_description | default:"Не указано" }}</p>
+    </div>
 
-    <h2>Отзывы о конференции:</h2>
-    <a href="{% url 'add_review' conference.id %}">Добавить отзыв</a>
-    <a href="">Мои отзывы</a>
-    <a href="{% url 'reviews_list' conference_id=conference.id %}">Все отзывы</a>
+    <br>
+    <div class="card mt-15">
+        <h2>Отзывы о конференции:</h2>
+        <div class="flex">
+            <a href="{% url 'add_review' conference.id %}">Добавить отзыв</a>
+            <a href="">Мои отзывы</a>
+            <a href="{% url 'reviews_list' conference_id=conference.id %}">Все отзывы</a>
+        </div>
+    </div>
 </body>
 </html>
