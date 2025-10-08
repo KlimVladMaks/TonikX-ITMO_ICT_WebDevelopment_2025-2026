@@ -1,4 +1,4 @@
-from django.views.generic import CreateView, TemplateView
+from django.views.generic import CreateView, TemplateView, DetailView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -26,3 +26,9 @@ class ConfirmLogoutView(LoginRequiredMixin, TemplateView):
 
 class WelcomeView(TemplateView):
     template_name = 'users/welcome.html'
+
+
+class UserDetailView(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'users/user_detail.html'
+    context_object_name = 'user'

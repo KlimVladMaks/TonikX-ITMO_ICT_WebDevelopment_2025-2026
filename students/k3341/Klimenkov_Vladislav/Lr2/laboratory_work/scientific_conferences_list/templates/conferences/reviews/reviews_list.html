@@ -11,7 +11,7 @@
     <table class="menu-table mb-15">
         <tr>
             <td><strong>Username:</strong> {{ user.username }}</td>
-            <td><a href="">Профиль</a></td>
+            <td><a href="{% url 'user_detail' user.id %}">Профиль</a></td>
             <td><a href="/admin/">Админ-панель</a></td>
             <td><a href="{% url 'logout' %}">Выйти</a></td>
         </tr>
