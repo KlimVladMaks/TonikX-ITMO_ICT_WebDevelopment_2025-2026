@@ -127,6 +127,10 @@ class ReviewsListView(LoginRequiredMixin, ListView):
     context_object_name = 'reviews'
     paginate_by = 10
 
+    def get_queryset(self):
+        conference_id = self.kwargs.get('conference_id')
+        return Review.objects.filter(conference_id=conference_id)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
