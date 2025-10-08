@@ -5,7 +5,8 @@ from .views import (CustomSignUpView,
                     ConfirmLogoutView,
                     WelcomeView,
                     UserDetailView,
-                    EditUserView)
+                    EditUserView,
+                    UserPasswordChangeView)
 
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path('welcome/', WelcomeView.as_view(), name='welcome'),
     path('<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     path('<int:pk>/edit', EditUserView.as_view(), name='edit_user'),
+    path('<int:pk>/edit/password>', UserPasswordChangeView.as_view(), name='edit_password'),
 ]
