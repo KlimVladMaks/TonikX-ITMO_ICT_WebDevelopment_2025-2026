@@ -2,8 +2,11 @@ from django.views.generic import CreateView, TemplateView, DetailView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import UpdateView
 from django.urls import reverse_lazy
-from .forms import SignUpForm
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import PermissionDenied
+from .forms import SignUpForm, EditUserForm
 from .models import User
 
 
@@ -32,3 +35,19 @@ class UserDetailView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'users/user_detail.html'
     context_object_name = 'user'
+
+
+class EditUserView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = EditUserForm
+    template_name = 'users/edit_user.html'
+    context_object_name = 'user'
+
+    def get_object(self, queryset=None):
+        user = get_object_or_404(User, pk=self.kwargs['pk'])
+        if user != self.request.user:
+            raise PermissionDenied("Вы можете изменять данные только своего профиля")
+        return user
+    
+    def get_success_url(self):
+        return reverse_lazy('user_detail', kwargs={'pk': self.kwargs['pk']})
