@@ -31,23 +31,6 @@
     {% endfor %}
     </div>
 
-    <!-- Пагинация -->
-    {% if is_paginated %}
-    <div class="pagination">
-        {% if page_obj.has_previous %}
-        <a href="?page=1">Первая</a>
-        <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
-        {% endif %}
-
-        <span class="current-page">
-            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
-        </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
-        {% endif %}
-    </div>
-    {% endif %}
+    {% include "includes/pagination.html" with pagination_class="mt-15" %}
 </body>
 </html>
