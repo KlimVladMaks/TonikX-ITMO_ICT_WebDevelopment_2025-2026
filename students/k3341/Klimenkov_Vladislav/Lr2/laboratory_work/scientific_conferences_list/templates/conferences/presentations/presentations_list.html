@@ -21,6 +21,9 @@
             <strong>Автор:</strong> {{ presentation.author.first_name }} {{ presentation.author.last_name }} 
             ({{ presentation.author.username }})
         </p>
+        <p>
+            <strong>Оценка:</strong> {{ presentation.get_recommendation_display }}
+        </p>
     </div>
     <br>
     {% empty %}
