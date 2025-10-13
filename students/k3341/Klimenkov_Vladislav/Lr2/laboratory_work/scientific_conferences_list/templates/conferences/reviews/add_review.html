@@ -7,16 +7,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
 </head>
 <body>
-    <!-- Верхнее меню -->
-    <table class="menu-table">
-        <tr>
-            <td><strong>Username:</strong> {{ user.username }}</td>
-            <td><a href="{% url 'conferences_list' %}">Список конференций</a></td>
-            <td><a href="{% url 'user_detail' user.id %}">Профиль</a></td>
-            <td><a href="/admin/">Админ-панель</a></td>
-            <td><a href="{% url 'logout' %}">Выйти</a></td>
-        </tr>
-    </table>
+    {% include "includes/top_menu.html" %}
 
     <h1 class="mt-15">Оставить отзыв о конференции "{{ conference.name }}"</h1>
 
