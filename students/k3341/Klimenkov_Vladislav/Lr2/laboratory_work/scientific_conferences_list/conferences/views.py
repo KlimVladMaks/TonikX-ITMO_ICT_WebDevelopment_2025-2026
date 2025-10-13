@@ -63,6 +63,21 @@ class EditConferenceView(LoginRequiredMixin, UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
 
+class DeleteConferenceView(LoginRequiredMixin, DeleteView):
+    model = Conference
+    template_name = 'conferences/delete_conference.html'
+    context_object_name = 'conference'
+    success_url = reverse_lazy('conferences_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Выполняет предварительную маршрутизацию и общую логику перед вызовом конкретного метода.
+        """
+        if not request.user.is_superuser:
+            raise PermissionDenied("Удалять конференции могут только суперпользователи")
+        return super().dispatch(request, *args, **kwargs)
+
+
 # === ВЫСТУПЛЕНИЯ ===
 
 

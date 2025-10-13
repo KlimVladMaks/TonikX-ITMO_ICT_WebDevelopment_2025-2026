@@ -31,7 +31,7 @@
                 <a href="{% url 'conference_detail' conference.pk %}">Подробнее</a>
                 {% if user.is_superuser %}
                 <a href="{% url 'edit_conference' conference.pk %}">Изменить</a>
-                <a href="">Удалить</a>
+                <a href="{% url 'delete_conference' conference.pk %}">Удалить</a>
                 {% endif %}
             </div>
         </div>
