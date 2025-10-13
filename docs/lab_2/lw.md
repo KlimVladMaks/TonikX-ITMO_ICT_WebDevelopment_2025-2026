@@ -117,10 +117,14 @@ urlpatterns = [
 
     <h1 class="mt-20">Список научных конференций</h1>
 
-    <a class="blue-button mt-20 mb-20" href="">Добавить конференцию</a>
+    {% if user.is_superuser %}
+    <a class="blue-button mt-20" href="{% url 'add_conference' %}">
+        Добавить конференцию
+    </a>
+    {% endif %}
 
     <!-- Список конференций -->
-    <div class="conferences-list">
+    <div class="conferences-list mt-20">
         {% for conference in conferences %}
 
         <!-- Карточка конференции -->
@@ -129,7 +133,13 @@ urlpatterns = [
             <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
             <p><strong>Место:</strong> {{ conference.venue_name }}</p>
             <p><strong>Темы:</strong> {{ conference.topics | default:"Не указаны" }}</p>
-            <a href="{% url 'conference_detail' conference.pk %}">Подробнее</a>
+            <div class="flex">
+                <a href="{% url 'conference_detail' conference.pk %}">Подробнее</a>
+                {% if user.is_superuser %}
+                <a href="{% url 'edit_conference' conference.pk %}">Изменить</a>
+                <a href="{% url 'delete_conference' conference.pk %}">Удалить</a>
+                {% endif %}
+            </div>
         </div>
         <br>
         {% empty %}
@@ -137,24 +147,7 @@ urlpatterns = [
         {% endfor %}
     </div>
 
-    <!-- Пагинация -->
-    {% if is_paginated %}
-    <div class="pagination mt-15">
-        {% if page_obj.has_previous %}
-        <a href="?page=1">Первая</a>
-        <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
-        {% endif %}
-
-        <span class="current-page">
-            <strong>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</strong>
-        </span>
-
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
-        {% endif %}
-    </div>
-    {% endif %}
+    {% include "includes/pagination.html" with pagination_class="mt-15" %}
 </body>
 </html>
 ```
@@ -324,16 +317,148 @@ urlpatterns = [
 
 > Просмотр конференций и регистрацию авторов для выступлений. Пользователь должен иметь возможность редактирования и удаления своих регистраций.
 
+Просмотр конференций осуществляется через страницу со списком всех конференций и страницу с детальной информацией о конференции (эти страницы были разобраны выше).
 
+Рассмотрим механизм регистрации выступлений авторов на конференции:
 
+Для регистрации выступлений было реализовано следующее представление:
 
+```python title="scientific_conferences_list/conferences/views.py"
+class RegisterPresentationView(LoginRequiredMixin, CreateView):
+    model = Presentation
+    form_class = RegisterPresentationForm
+    template_name = 'conferences/presentations/register_presentation.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['pk'])
+        context['conference'] = conference
+        return context
 
+    def form_valid(self, form):
+        conference = get_object_or_404(Conference, pk=self.kwargs['pk'])
+        presentation = form.save(commit=False)
+        presentation.author = self.request.user
+        presentation.conference = conference
+        presentation.save()
+        return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['pk']})
+```
 
+Как можно заметить, данное представление дополнительно подгружает в контекст информацию о конференции, на которой должно быть зарегистрировано создаваемое выступление. Также после отправки формы к данным выступления добавляется автор, которым выступает пользователь, создавший выступление.
 
+Данное представление было зарегистрировано в URLs:
 
+```python title=""
+urlpatterns = [
+     path('<int:pk>/presentations/register',
+          RegisterPresentationView.as_view(), 
+          name='register_presentation'),
+]
+```
 
+Также был создан соответствующий HTML-шаблон:
 
+```html title="scientific_conferences_list/templates/conferences/presentations/register_presentation.html"
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Регистрация своего выступления на конференции</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    {% include "includes/top_menu.html" %}
 
+    <h1 class="mt-15">Регистрация своего выступления на конференции</h1>
 
+    <div class="card lh16 mt-15">
+        <p><strong>Конференция:</strong> {{ conference.name }}</p>
+        <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
+        <p><strong>Место:</strong> {{ conference.venue_name }}</p>
+    </div>
+
+    <br>
+    <form method="post" class="form mt-15">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="buttons">
+            <button type="submit">Зарегистрировать</button>
+            <a href="javascript:history.back()">Отмена</a>
+        </div>
+    </form>
+</body>
+</html>
+```
+
+В результате получилась следующая механика регистрации выступлений авторов на конференции:
+
+![5](../img/lab_2/lw/5.png)
+
+![6](../img/lab_2/lw/6.png)
+
+![7](../img/lab_2/lw/7.png)
+
+Для редактирования и удаления выступлений были реализованы следующие представления:
+
+```python title="scientific_conferences_list/conferences/views.py"
+class EditPresentationView(LoginRequiredMixin, UpdateView):
+    model = Presentation
+    fields = ['title', 'description']
+    template_name = 'conferences/presentations/edit_presentation.html'
+    context_object_name = 'presentation'
+
+    def get_object(self, queryset=None):
+        presentation = get_object_or_404(Presentation, pk=self.kwargs['presentation_id'])
+        if presentation.author != self.request.user:
+            raise PermissionDenied("Вы можете изменять только свои выступления")
+        return presentation
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['conference_id']})
+```
+
+```python title="scientific_conferences_list/conferences/views.py"
+class CancelPresentationView(LoginRequiredMixin, DeleteView):
+    model = Presentation
+    template_name = 'conferences/presentations/cancel_presentation.html'
+    context_object_name = 'presentation'
+
+    def get_object(self, queryset=None):
+        presentation = get_object_or_404(Presentation, pk=self.kwargs['presentation_id'])
+        if presentation.author != self.request.user:
+            raise PermissionDenied("Вы можете отменять только свои выступления")
+        return presentation
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
+    
+    def get_success_url(self):
+        return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['conference_id']})
+```
+
+Как можно заметить, в обоих представлениях проводится проверка на то, что с выступлением работает именно пользователь, создавший его. Если это не так, то выбрасывается ошибка `PermissionDenied`.
+
+В результате получились следующие механизмы редактирования и удаления выступлений:
+
+![8](../img/lab_2/lw/8.png)
+
+![9](../img/lab_2/lw/9.png)
+
+![10](../img/lab_2/lw/10.png)
+
+![11](../img/lab_2/lw/11.png)
+
+![12](../img/lab_2/lw/12.png)
