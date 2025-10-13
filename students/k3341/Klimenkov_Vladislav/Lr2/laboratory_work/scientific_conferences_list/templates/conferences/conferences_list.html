@@ -11,10 +11,14 @@
 
     <h1 class="mt-20">Список научных конференций</h1>
 
-    <a class="blue-button mt-20 mb-20" href="">Добавить конференцию</a>
+    {% if user.is_superuser %}
+    <a class="blue-button mt-20" href="{% url 'add_conference' %}">
+        Добавить конференцию
+    </a>
+    {% endif %}
 
     <!-- Список конференций -->
-    <div class="conferences-list">
+    <div class="conferences-list mt-20">
         {% for conference in conferences %}
 
         <!-- Карточка конференции -->
@@ -23,7 +27,13 @@
             <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
             <p><strong>Место:</strong> {{ conference.venue_name }}</p>
             <p><strong>Темы:</strong> {{ conference.topics | default:"Не указаны" }}</p>
-            <a href="{% url 'conference_detail' conference.pk %}">Подробнее</a>
+            <div class="flex">
+                <a href="{% url 'conference_detail' conference.pk %}">Подробнее</a>
+                {% if user.is_superuser %}
+                <a href="">Изменить</a>
+                <a href="">Удалить</a>
+                {% endif %}
+            </div>
         </div>
         <br>
         {% empty %}
