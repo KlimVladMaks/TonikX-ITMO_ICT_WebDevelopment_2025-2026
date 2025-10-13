@@ -7,7 +7,8 @@ from .views import (ConferencesListView,
                     ReviewsListView,
                     AddReviewView,
                     PresentationsListView,
-                    AddConferenceView)
+                    AddConferenceView,
+                    EditConferenceView)
 
 
 '''
@@ -23,6 +24,7 @@ urlpatterns = [
      path('list/', ConferencesListView.as_view(), name='conferences_list'),
      path('add/', AddConferenceView.as_view(), name='add_conference'),
      path('<int:pk>/', ConferenceDetailView.as_view(), name='conference_detail'),
+     path('<int:pk>/edit/', EditConferenceView.as_view(), name='edit_conference'),
      path('<int:pk>/presentations/register',
           RegisterPresentationView.as_view(), 
           name='register_presentation'),

@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.core.exceptions import PermissionDenied
 from .models import Conference, Presentation, Review
-from .forms import RegisterPresentationForm, AddConferenceForm
+from .forms import RegisterPresentationForm, ConferenceForm
 
 # === КОНФЕРЕНЦИИ ===
 
@@ -34,8 +34,8 @@ class ConferenceDetailView(LoginRequiredMixin, DetailView):
 
 class AddConferenceView(LoginRequiredMixin, CreateView):
     model = Conference
+    form_class = ConferenceForm
     template_name = 'conferences/add_conference.html'
-    form_class = AddConferenceForm
     success_url = reverse_lazy('conferences_list')
 
     def dispatch(self, request, *args, **kwargs):
@@ -44,6 +44,22 @@ class AddConferenceView(LoginRequiredMixin, CreateView):
         """
         if not request.user.is_superuser:
             raise PermissionDenied("Создавать конференции могут только суперпользователи")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class EditConferenceView(LoginRequiredMixin, UpdateView):
+    model = Conference
+    form_class = ConferenceForm
+    template_name = 'conferences/edit_conference.html'
+    context_object_name = 'conference'
+    success_url = reverse_lazy('conferences_list')
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Выполняет предварительную маршрутизацию и общую логику перед вызовом конкретного метода.
+        """
+        if not request.user.is_superuser:
+            raise PermissionDenied("Редактировать конференции могут только суперпользователи")
         return super().dispatch(request, *args, **kwargs)
 
 

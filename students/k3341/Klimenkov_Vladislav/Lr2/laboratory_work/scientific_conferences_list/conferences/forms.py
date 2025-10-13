@@ -2,7 +2,7 @@ from django import forms
 from .models import Presentation, Conference
 
 
-class AddConferenceForm(forms.ModelForm):
+class ConferenceForm(forms.ModelForm):
     class Meta:
         model = Conference
         fields = ["name", "description", "start_date", "end_date", "topics", 
