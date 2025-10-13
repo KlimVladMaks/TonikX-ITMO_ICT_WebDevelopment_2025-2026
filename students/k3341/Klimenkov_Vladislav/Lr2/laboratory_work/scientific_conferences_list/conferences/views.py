@@ -129,7 +129,7 @@ class ReviewsListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         conference_id = self.kwargs.get('conference_id')
-        return Review.objects.filter(conference_id=conference_id)
+        return Review.objects.filter(conference_id=conference_id).order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
