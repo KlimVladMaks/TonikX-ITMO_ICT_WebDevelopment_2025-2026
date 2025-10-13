@@ -12,6 +12,9 @@
     <h1 class="mt-15">Профиль пользователя {{ user }}</h1>
 
     <div class="card mt-15 lh16">
+        {% if user.is_superuser %}
+        <i>(Данный пользователь является админом)</i>
+        {% endif %}
         <p><strong>Username:</strong> {{user.username}}</p>
         <p><strong>Имя:</strong> {{user.first_name}}</p>
         <p><strong>Фамилия:</strong> {{user.last_name}}</p>
