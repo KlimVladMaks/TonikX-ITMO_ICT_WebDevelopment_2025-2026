@@ -321,6 +321,26 @@ urlpatterns = [
 
 Рассмотрим механизм регистрации выступлений авторов на конференции:
 
+В первую очередь была реализована модель выступления:
+
+```python title="scientific_conferences_list/conferences/models.py"
+class Presentation(models.Model):
+    RECOMMENDATION_CHOICES = [
+        (None, "Не оценено"),
+        (True, "Рекомендован"),
+        (False, "Не рекомендован"),
+    ]
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    conference = models.ForeignKey(Conference, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    recommendation = models.BooleanField(choices=RECOMMENDATION_CHOICES, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.title} | {self.author}"
+```
+
 Для регистрации выступлений было реализовано следующее представление:
 
 ```python title="scientific_conferences_list/conferences/views.py"
@@ -425,9 +445,8 @@ class EditPresentationView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('conference_detail', kwargs={'pk': self.kwargs['conference_id']})
-```
 
-```python title="scientific_conferences_list/conferences/views.py"
+
 class CancelPresentationView(LoginRequiredMixin, DeleteView):
     model = Presentation
     template_name = 'conferences/presentations/cancel_presentation.html'
@@ -451,6 +470,87 @@ class CancelPresentationView(LoginRequiredMixin, DeleteView):
 
 Как можно заметить, в обоих представлениях проводится проверка на то, что с выступлением работает именно пользователь, создавший его. Если это не так, то выбрасывается ошибка `PermissionDenied`.
 
+Созданные выше представления были зарегистрированы в URLs:
+
+```python title="scientific_conferences_list/conferences/urls.py"
+urlpatterns = [
+     path('<int:conference_id>/presentations/<int:presentation_id>/cancel',
+          CancelPresentationView.as_view(),
+          name='cancel_presentation'),
+     path('<int:conference_id>/presentations/<int:presentation_id>/edit',
+          EditPresentationView.as_view(),
+          name='edit_presentation'),
+]
+```
+
+Также для представлений были созданы соответствующие HTML-шаблоны:
+
+```html title="scientific_conferences_list/templates/conferences/presentations/edit_presentation.html"
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Редактирование своего выступления на конференции</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    {% include "includes/top_menu.html" %}
+
+    <h1 class="mt-15">Редактирование своего выступления на конференции</h1>
+
+    <div class="card mt-15 lh16">
+        <p><strong>Конференция:</strong> {{ conference.name }}</p>
+        <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
+        <p><strong>Место:</strong> {{ conference.venue_name }}</p>
+    </div>
+
+    <br>
+    <form method="post" class="form mt-15">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="buttons">
+            <button type="submit">Сохранить</button>
+            <a href="javascript:history.back()">Отмена</a>
+        </div>
+    </form>
+</body>
+</html>
+```
+
+```html title="scientific_conferences_list/templates/conferences/presentations/cancel_presentation.html"
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Отмена выступления на конференции</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    {% include "includes/top_menu.html" %}
+
+    <h1 class="mt-15">Отменить ваше выступление на конференции?</h1>
+
+    <div class="card mt-15 lh16">
+    <p><strong>Выступление:</strong> {{ presentation.title }}</p>
+    <p><strong>Конференция:</strong> {{ conference.name }}</p>
+    <p><strong>Даты:</strong> {{ conference.start_date }} - {{ conference.end_date }}</p>
+    <p><strong>Место:</strong> {{ conference.venue_name }}</p>
+    </div>
+
+    <br>
+    <form method="post" class="form mt-15">
+        {% csrf_token %}
+        <div class="flex">
+            <button type="submit">Да</button>
+            <a href="javascript:history.back()">Нет</a>
+        </div>
+    </form>
+</body>
+</html>
+```
+
 В результате получились следующие механизмы редактирования и удаления выступлений:
 
 ![8](../img/lab_2/lw/8.png)
@@ -462,3 +562,247 @@ class CancelPresentationView(LoginRequiredMixin, DeleteView):
 ![11](../img/lab_2/lw/11.png)
 
 ![12](../img/lab_2/lw/12.png)
+
+> Написание отзывов к конференциям. При добавлении комментариев, должны сохраняться даты конференции, текст комментария, рейтинг (1-10), информация о комментаторе.
+
+Для работы с комментариями в первую очередь была создана модель комментария:
+
+```python title="scientific_conferences_list/conferences/models.py"
+class Review(models.Model):
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 11)]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    conference = models.ForeignKey(Conference, on_delete=models.CASCADE)
+    text = models.TextField()
+    rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
+
+    def __str__(self):
+        return f"Отзыв #{self.pk} - {self.rating}"
+```
+
+Для создания и просмотра комментариев были созданы следующие представления:
+
+```python title="scientific_conferences_list/conferences/views.py"
+class AddReviewView(LoginRequiredMixin, CreateView):
+    model = Review
+    fields = ['rating', 'text']
+    template_name = 'conferences/reviews/add_review.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
+
+    def form_valid(self, form):
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        review = form.save(commit=False)
+        review.user = self.request.user
+        review.conference = conference
+        review.save()
+        return super().form_valid(form)
+    
+    def get_success_url(self):
+        return reverse_lazy('reviews_list', kwargs={'conference_id': self.kwargs['conference_id']})
+
+
+class ReviewsListView(LoginRequiredMixin, ListView):
+    model = Review
+    template_name = 'conferences/reviews/reviews_list.html'
+    context_object_name = 'reviews'
+    paginate_by = 10
+
+    def get_queryset(self):
+        conference_id = self.kwargs.get('conference_id')
+        return Review.objects.filter(conference_id=conference_id).order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
+```
+
+Эти представления были зарегистрированы в URLs:
+
+```python title="scientific_conferences_list/conferences/urls.py"
+urlpatterns = [
+     path('<int:conference_id>/reviews/list',
+          ReviewsListView.as_view(),
+          name='reviews_list'),
+     path('<int:conference_id>/reviews/add',
+          AddReviewView.as_view(),
+          name='add_review'),
+]
+```
+
+Также были созданы соответствующие HTML-шаблоны:
+
+```html title="scientific_conferences_list/templates/conferences/reviews/add_review.html"
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Оставить отзыв о конференции "{{ conference.name }}"</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    {% include "includes/top_menu.html" %}
+
+    <h1 class="mt-15">Оставить отзыв о конференции "{{ conference.name }}"</h1>
+
+    <form method="post" class="form mt-15">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="buttons">
+            <button type="submit">Отправить</button>
+            <a href="javascript:history.back()">Отмена</a>
+        </div>
+    </form>
+</body>
+</html>
+```
+
+```html title="scientific_conferences_list/templates/conferences/reviews/reviews_list.html"
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Отзывы о конференции "{{ conference.name }}"</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    {% include "includes/top_menu.html" with menu_class="mb-15" %}
+
+    <a href="{% url 'conference_detail' conference.id %}">← К странице конференции</a>
+
+    <h1 class="mt-15">Отзывы о конференции "{{ conference.name }}"</h1>
+
+    <a href="{% url 'add_review' conference.id %}" class="blue-button mt-15 mb-15">
+        Добавить отзыв
+    </a>
+
+    <div class="reviews-list">
+    {% for review in reviews %}
+    <div class="card mt-10 lh16">
+        <p><strong>Автор:</strong> {{ review.user }}</p>
+        <p><strong>Оценка:</strong> {{ review.rating }}</p>
+        <p>{{ review.text }}</p>
+    </div>
+    <br>
+    {% empty %}
+    <p>Нет отзывов.</p>
+    {% endfor %}
+    </div>
+
+    {% include "includes/pagination.html" with pagination_class="mt-20" %}
+</body>
+</html>
+```
+
+В результате были реализованы следующие механизмы создания и просмотра комментариев:
+
+![13](../img/lab_2/lw/13.png)
+
+![14](../img/lab_2/lw/14.png)
+
+![15](../img/lab_2/lw/15.png)
+
+Даты конференции указаны в описании самой конференции, так что в отзыве эту информацию я решил не дублировать. Вся остальная требуемая для комментария информация присутствует: текст комментария, рейтинг (1-10) и информация о комментаторе (username и имя с фамилией).
+
+> Администратор должен иметь возможность указания результатов выступления (рекомендован к публикации или нет) средствами Django-admin.
+
+Для хранения результатов выступления в модель выступления `Presentation` было добавлено отдельное поле `recommendation = models.BooleanField(choices=RECOMMENDATION_CHOICES, null=True, blank=True)`, задать которое можно только через админ-панель. В результате получился следующий процесс выставления результатов:
+
+![16](../img/lab_2/lw/16.png)
+
+![17](../img/lab_2/lw/17.png)
+
+![18](../img/lab_2/lw/18.png)
+
+![19](../img/lab_2/lw/19.png)
+
+![20](../img/lab_2/lw/20.png)
+
+![21](../img/lab_2/lw/21.png)
+
+> В клиентской части должна формироваться таблица, отображающая всех участников по конференциям.
+
+Для отображения списка всех выступления было создано следующее представление:
+
+```python title="scientific_conferences_list/conferences/views.py"
+class PresentationsListView(LoginRequiredMixin, ListView):
+    model = Presentation
+    template_name = 'conferences/presentations/presentations_list.html'
+    context_object_name = 'presentations'
+    paginate_by = 20
+
+    def get_queryset(self):
+        conference_id = self.kwargs.get('conference_id')
+        return Presentation.objects.filter(conference_id=conference_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(Conference, pk=self.kwargs['conference_id'])
+        context['conference'] = conference
+        return context
+```
+
+Данное представление было зарегистрировано в URLs:
+
+```python title="scientific_conferences_list/conferences/urls.py"
+urlpatterns = [
+     path('<int:conference_id>/presentations/list',
+          PresentationsListView.as_view(),
+          name='presentations_list'),
+]
+```
+
+Также был создан соответствующий HTML-шаблон:
+
+```html title=""
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Список выступлений на конференции "{{ conference.name }}"</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+</head>
+<body>
+    {% include "includes/top_menu.html" with menu_class="mb-20" %}
+
+    <a href="{% url 'conference_detail' conference.id %}">← К странице конференции</a>
+
+    <h1 class="mt-15">Список выступлений на конференции "{{ conference.name }}"</h1>
+
+    <div class="presentations-list">
+    {% for presentation in presentations %}
+    <div class="card mt-15 lh16">
+        <h2>{{ presentation.title }}</h2>
+        <p>
+            <strong>Автор:</strong> {{ presentation.author.first_name }} {{ presentation.author.last_name }} 
+            ({{ presentation.author.username }})
+        </p>
+        <p>
+            <strong>Оценка:</strong> {{ presentation.get_recommendation_display }}
+        </p>
+    </div>
+    <br>
+    {% empty %}
+    <p>Нет выступлений.</p>
+    {% endfor %}
+    </div>
+
+    {% include "includes/pagination.html" with pagination_class="mt-15" %}
+</body>
+</html>
+```
+
+В результате получилась следующая страница со списком всех выступлений на конференции:
+
+![22](../img/lab_2/lw/22.png)
+
+Таким образом, было реализовано веб-приложение на Django, соответствующее всем требованиям задания лабораторной работы.
