@@ -27,3 +27,6 @@ python3 manage.py migrate
 
 # Создание суперпользователя:
 python3 manage.py createsuperuser
+
+# Запуск интерактивного режима:
+python3 manage.py shell
