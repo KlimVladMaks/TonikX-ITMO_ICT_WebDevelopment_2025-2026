@@ -7,7 +7,7 @@ class Owner(AbstractUser):
     passport_number = models.CharField(max_length=10, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     nationality = models.CharField(max_length=100, null=True, blank=True)
-    cars = models.ManyToManyField('Car', through='Ownership')
+    cars = models.ManyToManyField('Car', through='Ownership', related_name='owners')
 
     def __str__(self):
         return f"{self.last_name} {self.first_name}"
@@ -44,7 +44,7 @@ class DrivingLicense(models.Model):
     ]
 
     license_id = models.AutoField(primary_key=True)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='driving_licenses')
     license_number = models.CharField(max_length=10)
     license_type = models.CharField(max_length=10, choices=LICENSE_TYPES)
     issue_date = models.DateField()
@@ -55,8 +55,8 @@ class DrivingLicense(models.Model):
 
 class Ownership(models.Model):
     ownership_id = models.AutoField(primary_key=True)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
-    car = models.ForeignKey(Car, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='ownerships')
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='ownerships')
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
 

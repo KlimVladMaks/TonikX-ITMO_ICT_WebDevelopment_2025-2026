@@ -242,3 +242,65 @@ python3 manage.py shell
 ![](../img/lab_3/pw/5.png)
 
 Видим, что все требуемые объекты были успешно добавлены в базу данных.
+
+## Практическое задание 2
+
+### Описание задания
+
+По созданным в пр.1 данным написать следующие запросы на фильтрацию:
+
+- Где это необходимо, добавьте `related_name`к полям модели
+- Выведете все машины марки “Toyota” (или любой другой марки, которая у вас есть)
+- Найти всех водителей с именем “Олег” (или любым другим именем на ваше усмотрение)
+- Взяв любого случайного владельца получить его id, и по этому id получить экземпляр удостоверения в виде объекта модели (можно в 2 запроса)
+- Вывести всех владельцев красных машин (или любого другого цвета, который у вас присутствует)
+- Найти всех владельцев, чей [год владения машиной](https://docs.djangoproject.com/en/3.2/ref/models/querysets/#year) начинается с 2010 (или любой другой год, который присутствует у вас в базе)
+
+### Выполнение задания
+
+> Где это необходимо, добавьте `related_name` к полям модели
+
+Учитывая целесообразность добавим `related_name` к следующим полям моделей:
+
+```python
+class DrivingLicense(models.Model):
+    # ...
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='driving_licenses')
+    # ...
+
+class Ownership(models.Model):
+    # ...
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='ownerships')
+    car = models.ForeignKey(Car, on_delete=models.CASCADE, related_name='ownerships')
+    # ...
+
+class Owner(AbstractUser):
+    # ...
+    cars = models.ManyToManyField('Car', through='Ownership', related_name='owners')
+    # ...
+```
+
+Применим сделанные изменения к базе данных:
+
+```
+python3 manage.py makemigrations project_first_app
+python3 manage.py migrate
+```
+
+![](../img/lab_3/pw/7.png)
+
+Теперь обратную связь от целевой модели к исходной можно получить по заданным `related_name`:
+
+```python
+owner = Owner.objects.get(id=1)
+licenses = owner.driving_licenses.all()
+
+owner = Owner.objects.get(id=1)
+ownerships = owner.ownerships.all()
+
+car = Car.objects.get(car_id=1)
+car_ownerships = car.ownerships.all()
+
+car = Car.objects.get(car_id=1)
+owners = car.owners.all()
+```
