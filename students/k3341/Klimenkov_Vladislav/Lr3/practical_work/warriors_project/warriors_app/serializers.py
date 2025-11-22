@@ -8,7 +8,7 @@ class WarriorSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# class ProfessionCreateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Profession
-#         fields = "__all__"
+class ProfessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profession
+        fields = "__all__"
