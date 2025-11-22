@@ -258,6 +258,8 @@ python3 manage.py shell
 
 ### Выполнение задания
 
+#### Пункт 1
+
 > Где это необходимо, добавьте `related_name` к полям модели
 
 Учитывая целесообразность добавим `related_name` к следующим полям моделей:
@@ -304,3 +306,79 @@ car_ownerships = car.ownerships.all()
 car = Car.objects.get(car_id=1)
 owners = car.owners.all()
 ```
+
+#### Пункт 2
+
+> Выведете все машины марки “Toyota” (или любой другой марки, которая у вас есть)
+
+Напишем соответствующий запрос:
+
+```python
+toyota_cars = Car.objects.filter(model__icontains='toyota')
+print(toyota_cars)
+```
+
+Запустим этот код в shell и получим все автомобили Toyota из базы данных:
+
+![](../img/lab_3/pw/8.png)
+
+#### Пункт 3
+
+> Найти всех водителей с именем “Олег” (или любым другим именем на ваше усмотрение)
+
+Напишем соответствующий запрос:
+
+```python
+owners = Owner.objects.filter(first_name='Олег')
+print(owners)
+```
+
+Выполним его в shell:
+
+![](../img/lab_3/pw/9.png)
+
+#### Пункт 4
+
+> Взяв любого случайного владельца получить его id, и по этому id получить экземпляр удостоверения в виде объекта модели (можно в 2 запроса)
+
+Напишем соответствующий запрос:
+
+```python
+owner = Owner.objects.order_by('?').first()
+owner_id = owner.id
+driving_license = DrivingLicense.objects.filter(owner_id=owner_id)
+print(driving_license)
+```
+
+Выполним его в shell:
+
+![](../img/lab_3/pw/10.png)
+
+#### Пункт 5
+
+> Вывести всех владельцев красных машин (или любого другого цвета, который у вас присутствует)
+
+Напишем соответствующий запрос:
+
+```python
+owners = Owner.objects.filter(cars__color='Красный').distinct()
+print(owners)
+```
+
+Выполним его в shell:
+
+![](../img/lab_3/pw/11.png)
+
+#### Пункт 6
+
+> Найти всех владельцев, чей [год владения машиной](https://docs.djangoproject.com/en/3.2/ref/models/querysets/#year) начинается с 2010 (или любой другой год, который присутствует у вас в базе)
+
+
+```python
+owners = Owner.objects.filter(ownerships__start_date__year=2020).distinct()
+print(owners)
+```
+
+Выполним его в shell:
+
+![](../img/lab_3/pw/12.png)
