@@ -10,6 +10,7 @@ from .serializers import (
     WarriorSerializer,
     ProfessionSerializer,
     SkillSerializer,
+    WarriorProfessionSerializer,
 )
 
 
@@ -75,7 +76,7 @@ class SkillListAPIView(APIView):
     def get(self, request):
         skills = Skill.objects.all()
         serializer = SkillSerializer(skills, many=True)
-        return Response({"Skills": serializer.data})
+        return Response(serializer.data)
 
 
 # Реализация более примитивным методом
@@ -102,3 +103,11 @@ class SkillUpdateAPIView(generics.UpdateAPIView):
 class SkillDestroyAPIView(generics.DestroyAPIView):
     queryset = Skill.objects.all()
     serializer_class = SkillSerializer
+
+
+# ===== Специальные запросы =====
+
+# Вывод полной информации о всех воинах и их профессиях
+class WarriorProfessionListAPIView(generics.ListAPIView):
+    serializer_class = WarriorProfessionSerializer
+    queryset = Warrior.objects.all().select_related('profession')
