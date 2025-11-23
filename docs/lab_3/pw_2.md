@@ -237,3 +237,65 @@ urlpatterns = [
 ![](../img/lab_3/pw/29.png)
 
 Видим, что механизм удаления воина работает корректно.
+
+#### Эндпоинт 5
+
+> Редактирование информации о воине.
+
+При редактировании информации о воине наиболее сложным является реализация редактирования поля `skill`, так как оно реализовано через ManyToMany-связь. Если использовать созданный ранее сериализатор `WarriorSerializer` и `generics.UpdateAPIView`, то это позволит изменять все поля за исключением как раз поля `skill`. Чтобы добавить возможность редактировать и поле `skill`, реализуем кастомный сериализатор специально для операции редактирования:
+
+```python title="warriors_project/warriors_app/serializers.py"
+class WarriorUpdateSerializer(serializers.ModelSerializer):
+    skill = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset=Skill.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = Warrior
+        fields = "__all__"
+    
+    def update(self, instance, validated_data):
+        skills_data = validated_data.pop('skill', None)
+        instance = super().update(instance, validated_data)
+        if skills_data is not None:
+            instance.skill.clear()
+            for skill in skills_data:
+                SkillOfWarrior.objects.create(
+                    warrior=instance,
+                    skill=skill,
+                    level=1
+                )
+        return instance
+```
+
+Данный сериализатор при изменении навыков воина удаляет все старые навыки и заменяет их на новые с уровнем 1.
+
+Используя данные сериализатор создадим соответствующее представление:
+
+```python title="warriors_project/warriors_app/views.py"
+class WarriorUpdateAPIView(generics.UpdateAPIView):
+    queryset = Warrior.objects.all()
+    serializer_class = WarriorUpdateSerializer
+```
+
+Добавим созданное представление в URLs:
+
+```python title="warriors_project/warriors_app/urls.py"
+urlpatterns = [
+    # ...
+    path('warriors/<int:pk>/update/', WarriorUpdateAPIView.as_view()),
+    # ...
+]
+```
+
+Запустим сервер и проверим, что механизм редактирования воина работает корректно:
+
+![](../img/lab_3/pw/30.png)
+
+![](../img/lab_3/pw/31.png)
+
+![](../img/lab_3/pw/32.png)
+
+![](../img/lab_3/pw/33.png)
