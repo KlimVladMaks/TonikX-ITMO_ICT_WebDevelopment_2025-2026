@@ -205,3 +205,35 @@ urlpatterns = [
 ![](../img/lab_3/pw/26.png)
 
 Видим, что API работает корректно, выводя полную информацию о воине, его профессии и навыках.
+
+#### Эндпоинт 4
+
+> Удаление воина по id.
+
+Для удаление война реализуем соответствующее представление:
+
+```python title="warriors_project/warriors_app/views.py"
+class WarriorDestroyAPIView(generics.DestroyAPIView):
+    queryset = Warrior.objects.all()
+    serializer_class = WarriorSerializer
+```
+
+Добавим данное представление в URLs:
+
+```python title="warriors_project/warriors_app/urls.py"
+urlpatterns = [
+    # ...
+    path('warriors/<int:pk>/delete/', WarriorDestroyAPIView.as_view()),
+    # ...
+]
+```
+
+Запустим сервер и проверим, что механизм удаления воина работает корректно:
+
+![](../img/lab_3/pw/27.png)
+
+![](../img/lab_3/pw/28.png)
+
+![](../img/lab_3/pw/29.png)
+
+Видим, что механизм удаления воина работает корректно.
