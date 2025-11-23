@@ -71,7 +71,7 @@ urlpatterns = [
 
 1. Вывод полной информации о всех воинах и их профессиях (в одном запросе).
 2. Вывод полной информации о всех воинах и их скиллах (в одном запросе).
-3. Вывод полной информации о войне (по id), его профессиях и скиллах.
+3. Вывод полной информации о воине (по id), его профессиях и скиллах.
 4. Удаление воина по id.
 5. Редактирование информации о воине.
 
@@ -162,3 +162,46 @@ urlpatterns = [
 ![](../img/lab_3/pw/25.png)
 
 Видим, что API работает корректно и выводит информацию о воинах и их навыках.
+
+#### Эндпоинт 3
+
+> Вывод полной информации о воине (по id), его профессиях и скиллах.
+
+Реализуем сериализатор для преобразования данных о воине, его профессии и навыках:
+
+```python title="warriors_project/warriors_app/serializers.py"
+class WarriorProfessionSkillsSerializer(serializers.ModelSerializer):
+    profession = ProfessionSerializer(read_only=True)
+    skill = SkillOfWarriorSerializer(source='skillofwarrior_set', many=True, read_only=True)
+    class Meta:
+        model = Warrior
+        fields = "__all__"
+```
+
+С помощью сериализатора создаём соответствующее представление:
+
+```python title="warriors_project/warriors_app/views.py"
+class WarriorProfessionSkillsAPIView(generics.RetrieveAPIView):
+    serializer_class = WarriorProfessionSkillsSerializer
+    queryset = (
+        Warrior.objects.all()
+        .select_related('profession')
+        .prefetch_related('skillofwarrior_set__skill')
+    )
+```
+
+Регистрируем созданное представление в URLs:
+
+```python title="warriors_project/warriors_app/urls.py"
+urlpatterns = [
+    # ...
+    path('warriors/<int:pk>/detail', WarriorProfessionSkillsAPIView.as_view()),
+    # ...
+]
+```
+
+Запустим сервер и проверим, что API работает корректно:
+
+![](../img/lab_3/pw/26.png)
+
+Видим, что API работает корректно, выводя полную информацию о воине, его профессии и навыках.

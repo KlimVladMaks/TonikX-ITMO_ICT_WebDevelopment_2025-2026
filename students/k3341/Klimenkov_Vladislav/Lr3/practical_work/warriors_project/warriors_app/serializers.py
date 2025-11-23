@@ -70,8 +70,17 @@ class WarriorProfessionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# Воин с информацией и навыках
+# Воин с информацией о навыках
 class WarriorSkillsSerializer(serializers.ModelSerializer):
+    skill = SkillOfWarriorSerializer(source='skillofwarrior_set', many=True, read_only=True)
+    class Meta:
+        model = Warrior
+        fields = "__all__"
+
+
+# Воин с информацией о профессии и навыках
+class WarriorProfessionSkillsSerializer(serializers.ModelSerializer):
+    profession = ProfessionSerializer(read_only=True)
     skill = SkillOfWarriorSerializer(source='skillofwarrior_set', many=True, read_only=True)
     class Meta:
         model = Warrior
