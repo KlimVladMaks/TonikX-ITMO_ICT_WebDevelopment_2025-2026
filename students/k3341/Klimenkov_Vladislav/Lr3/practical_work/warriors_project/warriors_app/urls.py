@@ -15,7 +15,8 @@ from .views import (
     SkillRetrieveAPIView,
     SkillUpdateAPIView,
     SkillDestroyAPIView,
-    WarriorProfessionListAPIView
+    WarriorProfessionListAPIView,
+    WarriorSkillsListAPIView,
 )
 
 urlpatterns = [
@@ -42,4 +43,5 @@ urlpatterns = [
 
     # Специальные запросы
     path('warriors/professions', WarriorProfessionListAPIView.as_view()),
+    path('warriors/skills', WarriorSkillsListAPIView.as_view()),
 ]

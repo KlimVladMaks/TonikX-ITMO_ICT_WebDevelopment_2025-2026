@@ -114,3 +114,51 @@ urlpatterns = [
 ![](../img/lab_3/pw/23.png)
 
 Видим, что данная endpoint корректно выдаёт полную информацию о всех воинах и их профессиях.
+
+#### Эндпоинт 2
+
+> Вывод полной информации о всех воинах и их скиллах (в одном запросе).
+
+Основной сложностью в данном endpoint является обработка ManyToMany-связи для поля 'skill'. Создадим serializer для преобразовании информации о воинах и их скиллах:
+
+```python title="warriors_project/warriors_app/serializers.py"
+class SkillOfWarriorSerializer(serializers.ModelSerializer):
+    skill = SkillSerializer(read_only=True)
+    class Meta:
+        model = SkillOfWarrior
+        fields = ["skill", "level"]
+
+class WarriorSkillsSerializer(serializers.ModelSerializer):
+    skill = SkillOfWarriorSerializer(source='skillofwarrior_set', many=True, read_only=True)
+    class Meta:
+        model = Warrior
+        fields = "__all__"
+```
+
+Видим, что для создания `WarriorSkillsSerializer` потребовалось создание промежуточного `SkillOfWarriorSerializer`, который как раз и реализует ManyToMany-связи для поля 'skill'.
+
+Теперь используя созданный serializer создадим соответствующее представление:
+
+```python title="warriors_project/warriors_app/views.py"
+class WarriorSkillsListAPIView(generics.ListAPIView):
+    serializer_class = WarriorSkillsSerializer
+    queryset = Warrior.objects.all().prefetch_related('skillofwarrior_set__skill')
+```
+
+Добавим созданное представление в URLs:
+
+```python title=""
+urlpatterns = [
+    # ...
+    path('warriors/skills', WarriorSkillsListAPIView.as_view()),
+    # ...
+]
+```
+
+Запустим сервер и проверим, что API работает корректно:
+
+![](../img/lab_3/pw/24.png)
+
+![](../img/lab_3/pw/25.png)
+
+Видим, что API работает корректно и выводит информацию о воинах и их навыках.

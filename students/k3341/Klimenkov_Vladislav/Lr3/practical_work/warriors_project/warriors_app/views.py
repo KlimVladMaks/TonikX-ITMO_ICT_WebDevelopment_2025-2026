@@ -12,6 +12,7 @@ from .serializers import (
     ProfessionSerializer,
     SkillSerializer,
     WarriorProfessionSerializer,
+    WarriorSkillsSerializer,
 )
 
 
@@ -112,3 +113,9 @@ class SkillDestroyAPIView(generics.DestroyAPIView):
 class WarriorProfessionListAPIView(generics.ListAPIView):
     serializer_class = WarriorProfessionSerializer
     queryset = Warrior.objects.all().select_related('profession')
+
+
+# Вывод полной информации о всех воинах и их навыках
+class WarriorSkillsListAPIView(generics.ListAPIView):
+    serializer_class = WarriorSkillsSerializer
+    queryset = Warrior.objects.all().prefetch_related('skillofwarrior_set__skill')
