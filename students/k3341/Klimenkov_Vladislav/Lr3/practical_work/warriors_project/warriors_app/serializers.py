@@ -1,5 +1,10 @@
 from rest_framework import serializers
-from .models import Warrior, Profession, Skill
+from .models import (
+    Warrior,
+    Profession,
+    Skill,
+    SkillOfWarrior,
+)
 
 
 # Воин
@@ -7,6 +12,32 @@ class WarriorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warrior
         fields = "__all__"
+
+# Специальный serializer для обновления война
+# (Основная цель - возможность обновления поля 'skill' с ManyToMany-связью)
+class WarriorUpdateSerializer(serializers.ModelSerializer):
+    skill = serializers.PrimaryKeyRelatedField(
+        many=True, 
+        queryset=Skill.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = Warrior
+        fields = "__all__"
+    
+    def update(self, instance, validated_data):
+        skills_data = validated_data.pop('skill', None)
+        instance = super().update(instance, validated_data)
+        if skills_data is not None:
+            instance.skill.clear()
+            for skill in skills_data:
+                SkillOfWarrior.objects.create(
+                    warrior=instance,
+                    skill=skill,
+                    level=1
+                )
+        return instance
 
 
 # Профессия

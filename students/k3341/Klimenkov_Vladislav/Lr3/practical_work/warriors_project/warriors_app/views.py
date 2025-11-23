@@ -8,6 +8,7 @@ from .models import (
 )
 from .serializers import (
     WarriorSerializer,
+    WarriorUpdateSerializer,
     ProfessionSerializer,
     SkillSerializer,
     WarriorProfessionSerializer,
@@ -33,7 +34,7 @@ class WarriorRetrieveAPIView(generics.RetrieveAPIView):
 
 class WarriorUpdateAPIView(generics.UpdateAPIView):
     queryset = Warrior.objects.all()
-    serializer_class = WarriorSerializer
+    serializer_class = WarriorUpdateSerializer
 
 
 class WarriorDestroyAPIView(generics.DestroyAPIView):
