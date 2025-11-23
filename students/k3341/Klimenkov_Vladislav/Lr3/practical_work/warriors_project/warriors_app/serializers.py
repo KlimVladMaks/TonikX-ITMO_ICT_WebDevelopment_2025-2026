@@ -13,6 +13,7 @@ class ProfessionSerializer(serializers.ModelSerializer):
         model = Profession
         fields = "__all__"
 
+
 class SkillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill

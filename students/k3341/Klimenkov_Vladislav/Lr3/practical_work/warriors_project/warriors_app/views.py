@@ -1,8 +1,16 @@
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Warrior, Skill
-from .serializers import WarriorSerializer, SkillSerializer
+from .models import (
+    Warrior,
+    Profession,
+    Skill,
+)
+from .serializers import (
+    WarriorSerializer,
+    ProfessionSerializer,
+    SkillSerializer,
+)
 
 
 # ===== Warrior =====
@@ -30,6 +38,33 @@ class WarriorUpdateAPIView(generics.UpdateAPIView):
 class WarriorDestroyAPIView(generics.DestroyAPIView):
     queryset = Warrior.objects.all()
     serializer_class = WarriorSerializer
+
+
+# ===== Profession =====
+
+class ProfessionListAPIView(generics.ListAPIView):
+    queryset = Profession.objects.all()
+    serializer_class = ProfessionSerializer
+
+
+class ProfessionCreateAPIView(generics.CreateAPIView):
+    queryset = Profession.objects.all()
+    serializer_class = ProfessionSerializer 
+
+
+class ProfessionRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Profession.objects.all()
+    serializer_class = ProfessionSerializer
+
+
+class ProfessionUpdateAPIView(generics.UpdateAPIView):
+    queryset = Profession.objects.all()
+    serializer_class = ProfessionSerializer
+
+
+class ProfessionDestroyAPIView(generics.DestroyAPIView):
+    queryset = Profession.objects.all()
+    serializer_class = ProfessionSerializer
 
 
 # ===== Skill =====
