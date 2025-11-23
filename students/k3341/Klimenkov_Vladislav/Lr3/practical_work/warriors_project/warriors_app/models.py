@@ -14,7 +14,7 @@ class Warrior(models.Model):
    name = models.CharField(max_length=120, verbose_name='Имя')
    level = models.IntegerField(verbose_name='Уровень', default=0)
    skill = models.ManyToManyField('Skill', verbose_name='Умения', through='SkillOfWarrior',
-                                  related_name='warrior_skils')
+                                  related_name='warrior_skills')
    profession = models.ForeignKey('Profession', on_delete=models.CASCADE, verbose_name='Профессия',
                                   blank=True, null=True)
 
