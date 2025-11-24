@@ -57,7 +57,6 @@ class DriverAssignmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# Статус автобуса в конкретный день
 class BusStatusSerializer(serializers.ModelSerializer):
     """
     Базовый сериализатор для статуса автобуса.
@@ -65,3 +64,10 @@ class BusStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusStatus
         fields = '__all__'
+
+
+# ===== Сериализаторы для специальных запросов =====
+
+class RouteDriversSerializer(serializers.Serializer):
+    route = RouteSerializer()
+    drivers = DriverSerializer(many=True)

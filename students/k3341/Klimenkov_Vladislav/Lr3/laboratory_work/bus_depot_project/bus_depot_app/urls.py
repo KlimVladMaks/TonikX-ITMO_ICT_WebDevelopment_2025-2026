@@ -7,6 +7,7 @@ from .views import (
     DriverViewSet,
     DriverAssignmentViewSet,
     BusStatusViewSet,
+    RouteDriversAPIView,
 )
 
 router = DefaultRouter()
@@ -21,4 +22,5 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls)),
+    path('routes/<int:route_id>/drivers/', RouteDriversAPIView.as_view())
 ]
