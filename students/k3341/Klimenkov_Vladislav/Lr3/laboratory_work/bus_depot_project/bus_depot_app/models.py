@@ -6,7 +6,7 @@ class BusType(models.Model):
     """
     Тип автобуса.
     """
-    name = models.CharField(max_length=50, verbose_name="Тип")
+    name = models.CharField(max_length=50, verbose_name="Название")
     capacity = models.PositiveIntegerField(verbose_name="Вместимость")
 
     class Meta:
