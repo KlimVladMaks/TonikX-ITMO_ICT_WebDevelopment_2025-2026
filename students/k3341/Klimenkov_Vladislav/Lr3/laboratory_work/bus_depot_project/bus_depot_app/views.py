@@ -89,10 +89,8 @@ class RouteDriversAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Получаем всех водителей на этом маршруте
-        drivers = Driver.objects.filter(
-            Q(main_route=route) | Q(assignments__route=route)
-        ).distinct()
+        # Получаем всех водителей, для которых этот маршрут является основным
+        drivers = Driver.objects.filter(main_route=route).distinct()
 
         # Преобразуем данные в JSON
         serializer = RouteDriversSerializer({

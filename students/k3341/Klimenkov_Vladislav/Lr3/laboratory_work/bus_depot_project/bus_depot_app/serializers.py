@@ -68,6 +68,25 @@ class BusStatusSerializer(serializers.ModelSerializer):
 
 # ===== Сериализаторы для специальных запросов =====
 
+
+class DriverWithAssignmentsSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для водителя с его назначениями.
+    """
+    assignments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Driver
+        fields = '__all__'
+    
+    def get_assignments(self, obj):
+        assignments = DriverAssignment.objects.filter(driver=obj)
+        return DriverAssignmentSerializer(assignments, many=True).data
+
+
 class RouteDriversSerializer(serializers.Serializer):
+    """
+    Сериализатор для маршрута с водителями и их графиком работы.
+    """
     route = RouteSerializer()
-    drivers = DriverSerializer(many=True)
+    drivers = DriverWithAssignmentsSerializer(many=True)
