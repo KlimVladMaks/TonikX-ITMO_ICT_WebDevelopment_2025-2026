@@ -18,5 +18,7 @@ router.register('driver-assignments', DriverAssignmentViewSet)
 router.register('bus-statuses', BusStatusViewSet)
 
 urlpatterns = [
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls)),
 ]

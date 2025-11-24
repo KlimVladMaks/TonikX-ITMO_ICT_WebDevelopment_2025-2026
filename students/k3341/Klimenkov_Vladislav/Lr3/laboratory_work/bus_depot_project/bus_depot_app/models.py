@@ -66,7 +66,7 @@ class Route(models.Model):
         verbose_name_plural = "Маршруты"
     
     def __str__(self):
-        return f"Маршрут {self.number} ({self.start_point} - {self.end_point})"
+        return f"{self.number} ({self.start_point} - {self.end_point})"
 
 
 class Driver(models.Model):
@@ -119,7 +119,7 @@ class Driver(models.Model):
         verbose_name_plural = "Водители"
     
     def __str__(self):
-        return f"{self.full_name} (автобус: {self.main_bus})"
+        return f"{self.full_name} (автобус: {self.main_bus.license_plate})"
 
 
 class DriverAssignment(models.Model):

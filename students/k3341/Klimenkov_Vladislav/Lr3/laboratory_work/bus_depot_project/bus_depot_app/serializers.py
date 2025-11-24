@@ -14,7 +14,7 @@ from .models import (
 
 class BusTypeSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для типа автобуса.
+    Базовый сериализатор для типа автобуса.
     """
     class Meta:
         model = BusType
@@ -23,7 +23,7 @@ class BusTypeSerializer(serializers.ModelSerializer):
 
 class BusSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для автобуса.
+    Базовый сериализатор для автобуса.
     """
     class Meta:
         model = Bus
@@ -32,7 +32,7 @@ class BusSerializer(serializers.ModelSerializer):
 
 class RouteSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для маршрута.
+    Базовый сериализатор для маршрута.
     """
     class Meta:
         model = Route
@@ -41,7 +41,7 @@ class RouteSerializer(serializers.ModelSerializer):
 
 class DriverSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для водителя.
+    Базовый сериализатор для водителя.
     """
     class Meta:
         model = Driver
@@ -50,7 +50,7 @@ class DriverSerializer(serializers.ModelSerializer):
 
 class DriverAssignmentSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для назначения водителя.
+    Базовый сериализатор для назначения водителя.
     """
     class Meta:
         model = DriverAssignment
@@ -60,7 +60,7 @@ class DriverAssignmentSerializer(serializers.ModelSerializer):
 # Статус автобуса в конкретный день
 class BusStatusSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для статуса автобуса.
+    Базовый сериализатор для статуса автобуса.
     """
     class Meta:
         model = BusStatus
