@@ -8,6 +8,7 @@ from .views import (
     DriverAssignmentViewSet,
     BusStatusViewSet,
     RouteDriversAPIView,
+    TotalRouteLengthAPIView,
 )
 
 router = DefaultRouter()
@@ -21,6 +22,7 @@ router.register('bus-statuses', BusStatusViewSet)
 urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
+    path('routes/<int:route_id>/drivers/', RouteDriversAPIView.as_view()),
+    path('routes/total-length/', TotalRouteLengthAPIView.as_view()),
     path('', include(router.urls)),
-    path('routes/<int:route_id>/drivers/', RouteDriversAPIView.as_view())
 ]

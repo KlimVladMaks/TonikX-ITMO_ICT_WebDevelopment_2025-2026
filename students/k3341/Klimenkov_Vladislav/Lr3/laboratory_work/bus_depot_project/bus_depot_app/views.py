@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Q
+from django.db.models import Sum, Avg, Count
 from .models import (
     BusType,
     Bus,
@@ -19,6 +19,7 @@ from .serializers import (
     DriverAssignmentSerializer,
     BusStatusSerializer,
     RouteDriversSerializer,
+    TotalRouteLengthSerializer,
 )
 
 
@@ -100,3 +101,21 @@ class RouteDriversAPIView(APIView):
 
         # Возвращаем данные
         return Response(serializer.data)
+
+
+class TotalRouteLengthAPIView(APIView):
+    """
+    Общая протяжённость всех маршрутов.
+    """
+    def get(self, request):
+        aggregation = Route.objects.aggregate(
+            total_length=Sum('duration'),
+            routes_count=Count('id'),
+            average_length=Avg('duration')
+        )
+        if aggregation['total_length'] is None:
+            aggregation['total_length'] = 0
+            aggregation['routes_count'] = 0
+            aggregation['average_length'] = 0
+        serializer = TotalRouteLengthSerializer(aggregation)
+        return Response(serializer.data, status=status.HTTP_200_OK)

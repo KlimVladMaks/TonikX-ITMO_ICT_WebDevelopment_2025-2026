@@ -90,3 +90,12 @@ class RouteDriversSerializer(serializers.Serializer):
     """
     route = RouteSerializer()
     drivers = DriverWithAssignmentsSerializer(many=True)
+
+
+class TotalRouteLengthSerializer(serializers.Serializer):
+    """
+    Сериализатор для общей протяжённости маршрутов.
+    """
+    total_length = serializers.IntegerField()
+    routes_count = serializers.IntegerField()
+    average_length = serializers.FloatField()
