@@ -37,7 +37,7 @@ class BusType(models.Model):
     """
     Тип автобуса.
     """
-    name = models.CharField(max_length=50, verbose_name="Тип")
+    name = models.CharField(max_length=50, verbose_name="Название")
     capacity = models.PositiveIntegerField(verbose_name="Вместимость")
 
     class Meta:
@@ -97,7 +97,7 @@ class Route(models.Model):
         verbose_name_plural = "Маршруты"
     
     def __str__(self):
-        return f"Маршрут №{self.number} ({self.start_point} - {self.end_point})"
+        return f"{self.number} ({self.start_point} - {self.end_point})"
 
 
 class Driver(models.Model):
@@ -150,12 +150,12 @@ class Driver(models.Model):
         verbose_name_plural = "Водители"
     
     def __str__(self):
-        return f"{self.full_name} (класс {self.driver_class})"
+        return f"{self.full_name} (автобус: {self.main_bus.license_plate}, маршрут: {self.main_route.number})"
 
 
 class DriverAssignment(models.Model):
     """
-    Назначение водителя на автобус в конкретный день.
+    Назначение водителя.
     """
     driver = models.ForeignKey(
         Driver,
@@ -189,7 +189,7 @@ class DriverAssignment(models.Model):
 
 class BusStatus(models.Model):
     """
-    Статус автобуса в конкретный день.
+    Статус автобуса.
     """
     STATUS_CHOICES = [
         ('active', 'На линии'),
