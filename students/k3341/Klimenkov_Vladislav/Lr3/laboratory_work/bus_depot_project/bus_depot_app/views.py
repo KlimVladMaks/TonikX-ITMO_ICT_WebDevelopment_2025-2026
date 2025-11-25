@@ -21,6 +21,7 @@ from .serializers import (
     RouteDriversSerializer,
     TotalRouteLengthSerializer,
     BusStatusDetailSerializer,
+    DriverClassStatsSerializer
 )
 
 
@@ -141,3 +142,20 @@ class NotActiveBusesAPIView(APIView):
         ).select_related('bus')
         serializer = BusStatusDetailSerializer(not_active_statuses, many=True)
         return Response(serializer.data)
+
+
+class DriverClassStatsAPIView(APIView):
+    """
+    API для получения статистики по количеству водителей каждого класса.
+    """
+    def get(self, request):
+        stats = (
+            Driver.objects.values('driver_class')
+            .annotate(count=Count('id'))
+            .order_by('driver_class')
+        )
+        for stat in stats:
+            stat['driver_class_display'] = dict(Driver.CLASS_CHOICES).get(stat['driver_class'],
+                                                                              'Неизвестный класс')
+        serializer = DriverClassStatsSerializer(stats, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

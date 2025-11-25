@@ -109,3 +109,12 @@ class BusStatusDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = BusStatus
         fields = '__all__'
+
+
+class DriverClassStatsSerializer(serializers.Serializer):
+    """
+    Сериализатор для статистики по классам водителей.
+    """
+    driver_class = serializers.CharField()
+    driver_class_display = serializers.CharField()
+    count = serializers.IntegerField()
