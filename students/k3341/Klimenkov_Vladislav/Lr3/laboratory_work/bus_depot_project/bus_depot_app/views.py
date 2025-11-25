@@ -21,7 +21,8 @@ from .serializers import (
     RouteDriversSerializer,
     TotalRouteLengthSerializer,
     BusStatusDetailSerializer,
-    DriverClassStatsSerializer
+    DriverClassStatsSerializer,
+    ReportSerializer,
 )
 
 
@@ -159,3 +160,158 @@ class DriverClassStatsAPIView(APIView):
                                                                               'Неизвестный класс')
         serializer = DriverClassStatsSerializer(stats, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# ===== Отчёт =====
+
+
+class ReportAPIView(APIView):
+    """
+    API для получения отчёта по автобусному парку.
+    """
+    def get(self, request):
+        # Получаем общую статистику
+        summary_data = self.get_summary_data()
+
+        # Получаем данные по маршрутам
+        routes_data = self.get_routes_data()
+
+        # Преобразуем полученные данные с помощью сериализатора и возвращаем
+        report_data = {
+            'summary': summary_data,
+            'routes': routes_data
+        }
+        serializer = ReportSerializer(report_data)
+        return Response(serializer.data)
+
+    def get_summary_data(self):
+        """
+        Формирование общей статистики.
+        """
+        # Рассчитываем различные total-значения
+        total_routes = Route.objects.count()
+        total_route_length_minutes = Route.objects.aggregate(
+            total=Sum('duration')
+        )['total'] or 0
+        total_bus_types = BusType.objects.count()
+        total_buses = Bus.objects.count()
+        total_drivers = Driver.objects.count()
+
+        # Рассчитываем распределение типов автобусов
+        bus_type_distribution = {}
+        for bus_type in BusType.objects.all():
+            count = Bus.objects.filter(bus_type=bus_type).count()
+            bus_type_distribution[bus_type.name] = count
+        
+        # Рассчитываем средний стаж водителя
+        drivers_avg_experience = Driver.objects.aggregate(
+            avg_exp=Avg('experience')
+        )['avg_exp'] or 0
+
+        # Рассчитываем распределение водителей по классам
+        drivers_class_distribution = {
+            '1': Driver.objects.filter(driver_class='1').count(),
+            '2': Driver.objects.filter(driver_class='2').count(),
+            '3': Driver.objects.filter(driver_class='3').count()
+        }
+
+        # Возвращаем полученные данные
+        return {
+            'total_routes': total_routes,
+            'total_route_length_minutes': total_route_length_minutes,
+            'total_bus_types': total_bus_types,
+            'bus_type_distribution': bus_type_distribution,
+            'total_buses': total_buses,
+            'total_drivers': total_drivers,
+            'drivers_average_experience': round(drivers_avg_experience, 1),
+            'drivers_class_distribution': drivers_class_distribution
+        }
+
+    def get_routes_data(self):
+        """
+        Сбор данных для всех маршрутов.
+        """
+        # Перебираем все маршруты, для каждого маршрута получаем данные
+        # и возвращаем полученные результаты
+        routes_data = []
+        for route in Route.objects.all():
+            route_data = self.get_route_data(route)
+            routes_data.append(route_data)
+        return routes_data
+
+    def get_route_data(self, route):
+        """
+        Получение данных для конкретного маршрута.
+        """
+        # Требуемые данные маршрута
+        route_data = {
+            'id': route.id,
+            'number': route.number,
+            'start_point': route.start_point,
+            'end_point': route.end_point,
+            'start_time': route.start_time,
+            'end_time': route.end_time,
+            'interval': route.interval,
+            'duration': route.duration,
+            'bus_types': []
+        }
+
+        # Получаем всех водителей для данного маршрута
+        route_drivers = Driver.objects.filter(main_route=route)
+
+        # Словарь для данных по типам автобусов на данном маршруте
+        bus_types_data = {}
+
+        # Перебираем всех водителей
+        for driver in route_drivers:
+            # Если у водителя нет главного автобуса, то пропускаем итерацию
+            if driver.main_bus is None:
+                continue
+
+            # Получаем главный автобус водителя и тип этого автобуса 
+            bus = driver.main_bus
+            bus_type = bus.bus_type
+
+            # Если этого типа нет в словаре типов автобусов, то добавляем
+            if bus_type.id not in bus_types_data:
+                bus_types_data[bus_type.id] = {
+                    'id': bus_type.id,
+                    'name': bus_type.name,
+                    'capacity': bus_type.capacity,
+                    'buses': {}
+                }
+            
+            # Если автобус не добавлен в словарь автобусов данного типа, то добавляем
+            if bus.id not in bus_types_data[bus_type.id]['buses']:
+                bus_types_data[bus_type.id]['buses'][bus.id] = {
+                    'id': bus.id,
+                    'license_plate': bus.license_plate,
+                    'is_active': bus.is_active,
+                    'purchase_date': bus.purchase_date,
+                    'drivers': []
+                }
+            
+            # Формируем данные для водителя и добавляем в список водителей данного автобуса
+            driver_data = {
+                'id': driver.id,
+                'full_name': driver.full_name,
+                'passport': driver.passport,
+                'birth_date': driver.birth_date,
+                'driver_class': driver.driver_class,
+                'experience': driver.experience,
+                'salary': driver.salary
+            }
+            bus_types_data[bus_type.id]['buses'][bus.id]['drivers'].append(driver_data)
+
+        # Преобразуем словари в списки и добавляем к данным маршрута
+        for bus_type_id, bus_type_data in bus_types_data.items():
+            buses_list = list(bus_type_data['buses'].values())
+            route_data['bus_types'].append({
+                'id': bus_type_data['id'],
+                'name': bus_type_data['name'],
+                'capacity': bus_type_data['capacity'],
+                'buses': buses_list
+            })
+
+        # Возвращаем данные маршрута
+        return route_data

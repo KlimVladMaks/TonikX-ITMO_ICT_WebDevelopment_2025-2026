@@ -118,3 +118,80 @@ class DriverClassStatsSerializer(serializers.Serializer):
     driver_class = serializers.CharField()
     driver_class_display = serializers.CharField()
     count = serializers.IntegerField()
+
+
+# ===== Сериализаторы для отчёта по автобусному парку =====
+
+
+class ReportDriverSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для водителей для отчёта.
+    """
+    class Meta:
+        model = Driver
+        fields = [
+            'id', 'full_name', 'passport', 'birth_date',
+            'driver_class', 'experience', 'salary'
+        ]
+
+
+class ReportBusSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для автобусов для отчёта.
+    """
+    drivers = ReportDriverSerializer(many=True)
+    class Meta:
+        model = Bus
+        fields = [
+            'id', 'license_plate', 'is_active', 'purchase_date',
+            'drivers'
+        ]
+
+
+class ReportBusTypeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для типов автобуса для отчёта.
+    """
+    buses = ReportBusSerializer(many=True)
+    class Meta:
+        model = BusType
+        fields = [
+            'id', 'name', 'capacity',
+            'buses'
+        ]
+
+
+class ReportRouterSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для маршрутов для отчёта.
+    """
+    bus_types = ReportBusTypeSerializer(many=True)
+    class Meta:
+        model = Route
+        fields = [
+            'id', 'number', 'start_point', 'end_point',
+            'start_time', 'end_time', 'interval', 'duration',
+            'bus_types'
+        ]
+
+
+class ReportSummarySerializer(serializers.Serializer):
+    """
+    Сериализатор для общей статистики для отчёта.
+    """
+    total_routes = serializers.IntegerField()
+    total_route_length_minutes = serializers.IntegerField()
+    total_bus_types = serializers.IntegerField()
+    bus_type_distribution = serializers.DictField()
+    total_buses = serializers.IntegerField()
+    total_drivers = serializers.IntegerField()
+    drivers_average_experience = serializers.FloatField()
+    drivers_class_distribution = serializers.DictField()
+
+
+class ReportSerializer(serializers.Serializer):
+    """
+    Главный сериализатор для полного отчёта.
+    """
+    summary = ReportSummarySerializer()
+    routes = ReportRouterSerializer(many=True)

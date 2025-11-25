@@ -11,6 +11,7 @@ from .views import (
     TotalRouteLengthAPIView,
     NotActiveBusesAPIView,
     DriverClassStatsAPIView,
+    ReportAPIView,
 )
 
 router = DefaultRouter()
@@ -28,5 +29,6 @@ urlpatterns = [
     path('routes/total-length/', TotalRouteLengthAPIView.as_view()),
     path('not-active-buses/', NotActiveBusesAPIView.as_view()),
     path('drivers/class-stats', DriverClassStatsAPIView.as_view()),
+    path('report/', ReportAPIView.as_view()),
     path('', include(router.urls)),
 ]
