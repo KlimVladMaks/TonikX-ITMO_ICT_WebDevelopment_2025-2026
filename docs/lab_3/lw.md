@@ -508,3 +508,111 @@ Vary: Accept
     ]
 }
 ```
+
+##### Когда начинается и заканчивается движение автобусов на каждом маршруте?
+
+Данную задачу выполняет базовый эндпоинт для просмотра всех маршрутов, так как каждый маршрут содержит поля с временем начала и окончания движения автобусов.
+
+Пример запроса:
+
+```
+GET /bus-depot/routes/
+```
+
+Пример ответа:
+
+```
+HTTP 200 OK
+Allow: GET, POST, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+[
+    {
+        "id": 1,
+        "number": "R1",
+        "start_point": "ул. Дзержинского, 18",
+        "end_point": "ул. Полевая, 24",
+        "start_time": "08:00:00",
+        "end_time": "20:00:00",
+        "interval": 15,
+        "duration": 50
+    },
+    {
+        "id": 2,
+        "number": "R2",
+        "start_point": "ул. Больничная, 48",
+        "end_point": "ул. Фрунзе, 35",
+        "start_time": "09:00:00",
+        "end_time": "21:00:00",
+        "interval": 30,
+        "duration": 120
+    }
+]
+```
+
+##### Какова общая протяженность маршрутов, обслуживаемых автопарком?
+
+Сериализатор:
+
+```python title="bus_depot_project/bus_depot_app/serializers.py"
+class TotalRouteLengthSerializer(serializers.Serializer):
+    """
+    Сериализатор для общей протяжённости маршрутов.
+    """
+    total_length = serializers.IntegerField()
+    routes_count = serializers.IntegerField()
+    average_length = serializers.FloatField()
+```
+
+Представление:
+
+```python title="bus_depot_project/bus_depot_app/views.py"
+class TotalRouteLengthAPIView(APIView):
+    """
+    Общая протяжённость всех маршрутов.
+    """
+    def get(self, request):
+        aggregation = Route.objects.aggregate(
+            total_length=Sum('duration'),
+            routes_count=Count('id'),
+            average_length=Avg('duration')
+        )
+        if aggregation['total_length'] is None:
+            aggregation['total_length'] = 0
+            aggregation['routes_count'] = 0
+            aggregation['average_length'] = 0
+        serializer = TotalRouteLengthSerializer(aggregation)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+```
+
+URLs:
+
+```python title="bus_depot_project/bus_depot_app/urls.py"
+urlpatterns = [
+    # ...
+    path('routes/total-length/', TotalRouteLengthAPIView.as_view()),
+    # ...
+]
+```
+
+Пример запроса:
+
+```
+GET /bus-depot/routes/total-length/
+```
+
+Пример ответа:
+
+```
+HTTP 200 OK
+Allow: GET, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "total_length": 170,
+    "routes_count": 2,
+    "average_length": 85.0
+}
+```
