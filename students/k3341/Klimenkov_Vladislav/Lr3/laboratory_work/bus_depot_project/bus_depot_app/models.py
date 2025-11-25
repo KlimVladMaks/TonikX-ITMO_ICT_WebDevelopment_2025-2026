@@ -119,7 +119,7 @@ class Driver(models.Model):
         verbose_name_plural = "Водители"
     
     def __str__(self):
-        return f"{self.full_name} (автобус: {self.main_bus.license_plate})"
+        return f"{self.full_name} (автобус: {self.main_bus.license_plate}, маршрут: {self.main_route.number})"
 
 
 class DriverAssignment(models.Model):
