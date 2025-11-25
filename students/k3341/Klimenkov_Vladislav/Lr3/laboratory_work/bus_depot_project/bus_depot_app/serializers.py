@@ -99,3 +99,13 @@ class TotalRouteLengthSerializer(serializers.Serializer):
     total_length = serializers.IntegerField()
     routes_count = serializers.IntegerField()
     average_length = serializers.FloatField()
+
+
+class BusStatusDetailSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для статуса автобуса с детальной информацией об автобусе.
+    """
+    bus = BusSerializer(read_only=True)
+    class Meta:
+        model = BusStatus
+        fields = '__all__'

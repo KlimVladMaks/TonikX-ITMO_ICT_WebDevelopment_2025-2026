@@ -20,6 +20,7 @@ from .serializers import (
     BusStatusSerializer,
     RouteDriversSerializer,
     TotalRouteLengthSerializer,
+    BusStatusDetailSerializer,
 )
 
 
@@ -119,3 +120,24 @@ class TotalRouteLengthAPIView(APIView):
             aggregation['average_length'] = 0
         serializer = TotalRouteLengthSerializer(aggregation)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class NotActiveBusesAPIView(APIView):
+    """
+    Информация об автобусах, не вышедших на линию в заданную дату.
+    (Дата задаётся в URL: .../?date=YYYY-MM-DD)
+    """
+    def get(self, request):
+        date = request.query_params.get('date')
+        if not date:
+            return Response(
+                {"error": "Параметр 'date' обязателен (формат: YYYY-MM-DD)"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        not_active_statuses = BusStatus.objects.filter(
+            date=date
+        ).exclude(
+            status='active'
+        ).select_related('bus')
+        serializer = BusStatusDetailSerializer(not_active_statuses, many=True)
+        return Response(serializer.data)
