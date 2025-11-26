@@ -504,3 +504,170 @@
 ### `DELETE /bus-depot/bus-statuses/<id>/`
 
 Тело запроса не требуется.
+
+## Специализированные API-эндпоинты
+
+### `GET /bus-depot/routes/<id>/drivers/`
+
+Формат ответа:
+
+```json
+{
+    "route": {
+        "id": <id>,
+        "number": <number>,
+        "start_point": <start_point>,
+        "end_point": <end_point>,
+        "start_time": <start_time>,
+        "end_time": <end_time>,
+        "interval": <interval>,
+        "duration": <duration>
+    },
+    "drivers": [
+        {
+            "id": <id>,
+            "assignments": [
+                {
+                    "id": <id>,
+                    "date": <date>,
+                    "start_time": <start_time>,
+                    "end_time": <end_time>,
+                    "driver": <driver>,
+                    "bus": <bus>,
+                    "route": <route>
+                },
+                <...>
+            ],
+            "full_name": <full_name>,
+            "passport": <passport>,
+            "birth_date": <birth_date>,
+            "driver_class": <driver_class>,
+            "experience": <experience>,
+            "salary": <salary>,
+            "main_bus": <main_bus>,
+            "main_route": <main_route>
+        },
+        <...>
+    ]
+}
+```
+
+### `GET /bus-depot/routes/total-length/`
+
+Формат ответа:
+
+```json
+{
+    "total_length": <total_length>,
+    "routes_count": <routes_count>,
+    "average_length": <average_length>
+}
+```
+
+### `GET /bus-depot/buses/not-active/?date=<дата>`
+
+Формат ответа:
+
+```json
+[
+    {
+        "id": <id>,
+        "bus": {
+            "id": <id>,
+            "license_plate": <license_plate>,
+            "is_active": <is_active>,
+            "purchase_date": <purchase_date>,
+            "bus_type": <bus_type>
+        },
+        "date": <date>,
+        "status": <status>,
+        "reason": <reason>
+    },
+    <...>
+]
+```
+
+### `GET /bus-depot/drivers/class-stats`
+
+Формат ответа:
+
+```json
+[
+    {
+        "driver_class": <driver_class>,
+        "driver_class_display": <driver_class_display>,
+        "count": <count>
+    },
+    <...>
+]
+```
+
+## API-эндпоинт с отчётом по автобусному парку
+
+### `GET /bus-depot/report/`
+
+Формат ответа:
+
+```json
+{
+    "summary": {
+        "total_routes": <всего_маршрутов>,
+        "total_route_length_minutes": <общая_протяжённость_маршрутов_мин>,
+        "total_bus_types": <число_типов_автобусов>,
+        "bus_type_distribution": {
+            <тип_автобуса>: <число_автобусов_данного_типа>,
+            <остальные_типы_автобусов...>
+        },
+        "total_buses": <общее_число_автобусов>,
+        "total_drivers": <общее_число_водителей>,
+        "drivers_average_experience": <средний_опыт_водителя>,
+        "drivers_class_distribution": {
+            "1": <число_водителей_первого_класса>,
+            "2": <число_водителей_второго_класса>,
+            "3": <число_водителей_третьего_класса>
+        }
+    },
+    "routes": [
+        {
+            "id": <id_маршрута>,
+            "number": <номер_маршрута>,
+            "start_point": <начало_маршрута>,
+            "end_point": <конец_маршрута>,
+            "start_time": <время_начала_работы_маршрута>,
+            "end_time": <время_конца_работы_маршрута>,
+            "interval": <интервал_между_автобусами_на_маршруте_мин>,
+            "duration": <протяжённость_маршрута_мин>,
+            "bus_types": [
+                {
+                    "id": <id_типа_автобуса>,
+                    "name": <название_типа_автобуса>,
+                    "capacity": <вместимость_типа_автобуса>,
+                    "buses": [
+                        {
+                            "id": <id_автобуса>,
+                            "license_plate": <номер_автобуса>,
+                            "is_active": <действует_ли_автобус>,
+                            "purchase_date": <дата_покупки_автобуса>,
+                            "drivers": [
+                                {
+                                    "id": <id_водителя>,
+                                    "full_name": <фио_водителя>,
+                                    "passport": <номер_паспорта_водителя>,
+                                    "birth_date": <дата_рождения_водителя>,
+                                    "driver_class": <класс_водителя>,
+                                    "experience": <стаж_водителя_лет>,
+                                    "salary": <зарплата_водителя>
+                                },
+                                <остальные_водители_данного_автобуса...>
+                            ]
+                        },
+                        <остальные_автобусы_данного_типа_на_данном_маршруте...>
+                    ]
+                },
+                <остальные_типы_автобусов_на_данном_маршруте...>
+            ]
+        },
+        <остальные_маршруты...>
+    ]
+}
+```
