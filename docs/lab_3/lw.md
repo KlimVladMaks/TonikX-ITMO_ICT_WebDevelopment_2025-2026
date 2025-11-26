@@ -1235,3 +1235,92 @@ urlpatterns = [
 ```
 python manage.py migrate
 ```
+
+Теперь проверим, что Djoser работает корректно. Запустим сервер и выполним следующие запросы:
+
+Пробуем получить доступ к API без токена:
+
+``` title="Запрос"
+curl -X GET http://127.0.0.1:8000/bus-depot/routes/1/  \
+    -H "Content-Type: application/json"
+```
+
+``` title="Ответ"
+{"detail":"Authentication credentials were not provided."}
+```
+
+Видим, что теперь без токена доступа получить доступ к API нельзя.
+
+Регистрируем пользователя:
+
+``` title="Запрос"
+curl -X POST http://127.0.0.1:8000/auth/users/ \
+    -H "Content-Type: application/json" \
+    -d '{"username": "user1", "password": "eJ8871QTGR", "re_password": "eJ8871QTGR"}'
+```
+
+``` title="Ответ"
+{"email":"","username":"user1","id":2}
+```
+
+Видим, что нам успешно удалось зарегистрировать нового пользователя.
+
+Теперь попробуем получить токен доступа:
+
+``` title="Запрос"
+curl -X POST http://127.0.0.1:8000/auth/token/login/ \
+    -H "Content-Type: application/json" \
+    -d '{"username": "user1", "password": "eJ8871QTGR"}'
+```
+
+``` title="Ответ"
+{"auth_token":"3dd319d5d99c90f5e7cbb6c116bc38c4d7e1faed"}
+```
+
+Видим, что нам был выдан токен.
+
+Теперь попробуем с помощью этого токена получить доступ к API:
+
+``` title="Запрос"
+curl -X GET http://127.0.0.1:8000/bus-depot/routes/1/ \
+    -H "Authorization: Token 3dd319d5d99c90f5e7cbb6c116bc38c4d7e1faed"
+```
+
+``` title="Ответ"
+{"id":1,"number":"R1","start_point":"ул. Дзержинского, 18","end_point":"ул. Полевая, 24","start_time":"08:00:00","end_time":"20:00:00","interval":15,"duration":50}
+```
+
+Видим, что при наличии токена доступ к API получить удаётся.
+
+Теперь попробуем вывести информацию о текущем пользователе:
+
+``` title="Запрос"
+curl -X GET http://127.0.0.1:8000/auth/users/me/ \
+    -H "Authorization: Token 3dd319d5d99c90f5e7cbb6c116bc38c4d7e1faed"
+```
+
+``` title="Ответ"
+{"email":"","id":2,"username":"user1"}
+```
+
+Видим, что удалось получить информацию о текущем пользователе.
+
+Теперь попробуем выйти из аккаунта (удалить токен) и после этого получить доступ к API:
+
+``` title="Запрос"
+curl -X POST http://127.0.0.1:8000/auth/token/logout/ \
+    -H "Authorization: Token 3dd319d5d99c90f5e7cbb6c116bc38c4d7e1faed"
+```
+
+(Данный запрос ничего не возвращает.)
+
+``` title="Запрос"
+curl -X GET http://127.0.0.1:8000/bus-depot/routes/1/ \
+    -H "Authorization: Token 3dd319d5d99c90f5e7cbb6c116bc38c4d7e1faed"
+```
+
+``` title="Ответ"
+{"detail":"Invalid token."}
+```
+
+Видим, что после выхода из аккаунта старый токен считается недействительным.
