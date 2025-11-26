@@ -1174,3 +1174,64 @@ Vary: Accept
     ]
 }
 ```
+
+### Подключить регистрацию / авторизацию по токенам / вывод информации о текущем пользователе средствами Djoser
+
+Установим Djoser:
+
+```
+pip install djoser
+```
+
+Добавим Djoser в приложения проекта:
+
+```python title="bus_depot_project/bus_depot_project/settings.py"
+INSTALLED_APPS = [
+    # ...
+    'djoser',
+    # ...
+]
+```
+
+Настроим проект для работы с Djoser:
+
+```python title="bus_depot_project/bus_depot_project/settings.py"
+# Настройки REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+# Настройки Djoser
+DJOSER = {
+    'LOGIN_FIELD': 'username',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user_create': 'djoser.serializers.UserCreateSerializer',
+        'user': 'djoser.serializers.UserSerializer',
+        'current_user': 'djoser.serializers.UserSerializer',
+    }
+}
+```
+
+Добавим Djoser в URLs:
+
+```python title="bus_depot_project/bus_depot_project/urls.py"
+urlpatterns = [
+    # ...
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
+    # ...
+]
+```
+
+Сделаем миграцию:
+
+```
+python manage.py migrate
+```
