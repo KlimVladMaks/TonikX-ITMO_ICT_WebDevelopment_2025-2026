@@ -27,7 +27,7 @@ urlpatterns = [
     path('auth/', include('djoser.urls.authtoken')),
     path('routes/<int:route_id>/drivers/', RouteDriversAPIView.as_view()),
     path('routes/total-length/', TotalRouteLengthAPIView.as_view()),
-    path('not-active-buses/', NotActiveBusesAPIView.as_view()),
+    path('buses/not-active/', NotActiveBusesAPIView.as_view()),
     path('drivers/class-stats', DriverClassStatsAPIView.as_view()),
     path('report/', ReportAPIView.as_view()),
     path('', include(router.urls)),

@@ -616,3 +616,561 @@ Vary: Accept
     "average_length": 85.0
 }
 ```
+
+##### Какие автобусы не вышли на линию в заданный день и по какой причине (неисправность, отсутствие водителя)?
+
+Сериализатор:
+
+```python title="bus_depot_project/bus_depot_app/serializers.py"
+class BusStatusDetailSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для статуса автобуса с детальной информацией об автобусе.
+    """
+    bus = BusSerializer(read_only=True)
+    class Meta:
+        model = BusStatus
+        fields = '__all__'
+```
+
+Представление:
+
+```python title=""
+class NotActiveBusesAPIView(APIView):
+    """
+    Информация об автобусах, не вышедших на линию в заданную дату.
+    (Дата задаётся в URL: .../?date=YYYY-MM-DD)
+    """
+    def get(self, request):
+        date = request.query_params.get('date')
+        if not date:
+            return Response(
+                {"error": "Параметр 'date' обязателен (формат: YYYY-MM-DD)"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        not_active_statuses = BusStatus.objects.filter(
+            date=date
+        ).exclude(
+            status='active'
+        ).select_related('bus')
+        serializer = BusStatusDetailSerializer(not_active_statuses, many=True)
+        return Response(serializer.data)
+```
+
+URLs:
+
+```python title="bus_depot_project/bus_depot_app/urls.py"
+urlpatterns = [
+    # ...
+    path('buses/not-active/', NotActiveBusesAPIView.as_view()),
+    # ...
+]
+```
+
+Пример запроса:
+
+```
+GET /bus-depot/buses/not-active/?date=2020-01-01
+```
+
+Пример ответа:
+
+```
+HTTP 200 OK
+Allow: GET, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+[
+    {
+        "id": 2,
+        "bus": {
+            "id": 1,
+            "license_plate": "B1",
+            "is_active": true,
+            "purchase_date": "2020-01-01",
+            "bus_type": 1
+        },
+        "date": "2020-01-01",
+        "status": "no_driver",
+        "reason": ""
+    },
+    {
+        "id": 3,
+        "bus": {
+            "id": 2,
+            "license_plate": "B2",
+            "is_active": true,
+            "purchase_date": "2020-01-02",
+            "bus_type": 2
+        },
+        "date": "2020-01-01",
+        "status": "broken",
+        "reason": ""
+    },
+    {
+        "id": 4,
+        "bus": {
+            "id": 3,
+            "license_plate": "B3",
+            "is_active": true,
+            "purchase_date": "2020-01-03",
+            "bus_type": 3
+        },
+        "date": "2020-01-01",
+        "status": "not_active",
+        "reason": "Плановое обслуживание"
+    }
+]
+```
+
+##### Сколько водителей каждого класса работает в автопарке?
+
+Сериализатор:
+
+```python title="bus_depot_app/serializers.py"
+class DriverClassStatsSerializer(serializers.Serializer):
+    """
+    Сериализатор для статистики по классам водителей.
+    """
+    driver_class = serializers.CharField()
+    driver_class_display = serializers.CharField()
+    count = serializers.IntegerField()
+```
+
+Представление:
+
+```python title="bus_depot_project/bus_depot_app/views.py"
+class DriverClassStatsAPIView(APIView):
+    """
+    API для получения статистики по количеству водителей каждого класса.
+    """
+    def get(self, request):
+        stats = (
+            Driver.objects.values('driver_class')
+            .annotate(count=Count('id'))
+            .order_by('driver_class')
+        )
+        for stat in stats:
+            stat['driver_class_display'] = dict(Driver.CLASS_CHOICES).get(stat['driver_class'],
+                                                                              'Неизвестный класс')
+        serializer = DriverClassStatsSerializer(stats, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+```
+
+URLs:
+
+```python title="bus_depot_project/bus_depot_app/urls.py"
+urlpatterns = [
+    # ...
+    path('drivers/class-stats', DriverClassStatsAPIView.as_view()),
+    # ...
+]
+```
+
+Пример запроса:
+
+```
+GET /bus-depot/drivers/class-stats
+```
+
+Пример ответа:
+
+```
+HTTP 200 OK
+Allow: GET, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+[
+    {
+        "driver_class": "1",
+        "driver_class_display": "Первый класс",
+        "count": 2
+    },
+    {
+        "driver_class": "2",
+        "driver_class_display": "Второй класс",
+        "count": 1
+    }
+]
+```
+
+#### Реализация отчёта
+
+Также в рамках работы требовалось создать API-эндпоинт для генерации сложного отчёта по автобусному парку. Я реализовал отчёт, который предоставляет общую информацию по автопарку, а также данные по всем обслуживаемым маршрутам с развёрнутой структурой вида "маршрут - типы автобусов на этом маршруте - конкретные автобусы этих типов - водители, приписанные к этим автобусам". Реализация получилась следующая:
+
+Сериализаторы:
+
+```python title="bus_depot_project/bus_depot_app/serializers.py"
+class ReportDriverSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для водителей для отчёта.
+    """
+    class Meta:
+        model = Driver
+        fields = [
+            'id', 'full_name', 'passport', 'birth_date',
+            'driver_class', 'experience', 'salary'
+        ]
+
+
+class ReportBusSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для автобусов для отчёта.
+    """
+    drivers = ReportDriverSerializer(many=True)
+    class Meta:
+        model = Bus
+        fields = [
+            'id', 'license_plate', 'is_active', 'purchase_date',
+            'drivers'
+        ]
+
+
+class ReportBusTypeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для типов автобуса для отчёта.
+    """
+    buses = ReportBusSerializer(many=True)
+    class Meta:
+        model = BusType
+        fields = [
+            'id', 'name', 'capacity',
+            'buses'
+        ]
+
+
+class ReportRouterSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для маршрутов для отчёта.
+    """
+    bus_types = ReportBusTypeSerializer(many=True)
+    class Meta:
+        model = Route
+        fields = [
+            'id', 'number', 'start_point', 'end_point',
+            'start_time', 'end_time', 'interval', 'duration',
+            'bus_types'
+        ]
+
+
+class ReportSummarySerializer(serializers.Serializer):
+    """
+    Сериализатор для общей статистики для отчёта.
+    """
+    total_routes = serializers.IntegerField()
+    total_route_length_minutes = serializers.IntegerField()
+    total_bus_types = serializers.IntegerField()
+    bus_type_distribution = serializers.DictField()
+    total_buses = serializers.IntegerField()
+    total_drivers = serializers.IntegerField()
+    drivers_average_experience = serializers.FloatField()
+    drivers_class_distribution = serializers.DictField()
+
+
+class ReportSerializer(serializers.Serializer):
+    """
+    Главный сериализатор для полного отчёта.
+    """
+    summary = ReportSummarySerializer()
+    routes = ReportRouterSerializer(many=True)
+```
+
+Представление:
+
+```python title="bus_depot_project/bus_depot_app/views.py"
+class ReportAPIView(APIView):
+    """
+    API для получения отчёта по автобусному парку.
+    """
+    def get(self, request):
+        # Получаем общую статистику
+        summary_data = self.get_summary_data()
+
+        # Получаем данные по маршрутам
+        routes_data = self.get_routes_data()
+
+        # Преобразуем полученные данные с помощью сериализатора и возвращаем
+        report_data = {
+            'summary': summary_data,
+            'routes': routes_data
+        }
+        serializer = ReportSerializer(report_data)
+        return Response(serializer.data)
+
+    def get_summary_data(self):
+        """
+        Формирование общей статистики.
+        """
+        # Рассчитываем различные total-значения
+        total_routes = Route.objects.count()
+        total_route_length_minutes = Route.objects.aggregate(
+            total=Sum('duration')
+        )['total'] or 0
+        total_bus_types = BusType.objects.count()
+        total_buses = Bus.objects.count()
+        total_drivers = Driver.objects.count()
+
+        # Рассчитываем распределение типов автобусов
+        bus_type_distribution = {}
+        for bus_type in BusType.objects.all():
+            count = Bus.objects.filter(bus_type=bus_type).count()
+            bus_type_distribution[bus_type.name] = count
+        
+        # Рассчитываем средний стаж водителя
+        drivers_avg_experience = Driver.objects.aggregate(
+            avg_exp=Avg('experience')
+        )['avg_exp'] or 0
+
+        # Рассчитываем распределение водителей по классам
+        drivers_class_distribution = {
+            '1': Driver.objects.filter(driver_class='1').count(),
+            '2': Driver.objects.filter(driver_class='2').count(),
+            '3': Driver.objects.filter(driver_class='3').count()
+        }
+
+        # Возвращаем полученные данные
+        return {
+            'total_routes': total_routes,
+            'total_route_length_minutes': total_route_length_minutes,
+            'total_bus_types': total_bus_types,
+            'bus_type_distribution': bus_type_distribution,
+            'total_buses': total_buses,
+            'total_drivers': total_drivers,
+            'drivers_average_experience': round(drivers_avg_experience, 1),
+            'drivers_class_distribution': drivers_class_distribution
+        }
+
+    def get_routes_data(self):
+        """
+        Сбор данных для всех маршрутов.
+        """
+        # Перебираем все маршруты, для каждого маршрута получаем данные
+        # и возвращаем полученные результаты
+        routes_data = []
+        for route in Route.objects.all():
+            route_data = self.get_route_data(route)
+            routes_data.append(route_data)
+        return routes_data
+
+    def get_route_data(self, route):
+        """
+        Получение данных для конкретного маршрута.
+        """
+        # Требуемые данные маршрута
+        route_data = {
+            'id': route.id,
+            'number': route.number,
+            'start_point': route.start_point,
+            'end_point': route.end_point,
+            'start_time': route.start_time,
+            'end_time': route.end_time,
+            'interval': route.interval,
+            'duration': route.duration,
+            'bus_types': []
+        }
+
+        # Получаем всех водителей для данного маршрута
+        route_drivers = Driver.objects.filter(main_route=route)
+
+        # Словарь для данных по типам автобусов на данном маршруте
+        bus_types_data = {}
+
+        # Перебираем всех водителей
+        for driver in route_drivers:
+            # Если у водителя нет главного автобуса, то пропускаем итерацию
+            if driver.main_bus is None:
+                continue
+
+            # Получаем главный автобус водителя и тип этого автобуса 
+            bus = driver.main_bus
+            bus_type = bus.bus_type
+
+            # Если этого типа нет в словаре типов автобусов, то добавляем
+            if bus_type.id not in bus_types_data:
+                bus_types_data[bus_type.id] = {
+                    'id': bus_type.id,
+                    'name': bus_type.name,
+                    'capacity': bus_type.capacity,
+                    'buses': {}
+                }
+            
+            # Если автобус не добавлен в словарь автобусов данного типа, то добавляем
+            if bus.id not in bus_types_data[bus_type.id]['buses']:
+                bus_types_data[bus_type.id]['buses'][bus.id] = {
+                    'id': bus.id,
+                    'license_plate': bus.license_plate,
+                    'is_active': bus.is_active,
+                    'purchase_date': bus.purchase_date,
+                    'drivers': []
+                }
+            
+            # Формируем данные для водителя и добавляем в список водителей данного автобуса
+            driver_data = {
+                'id': driver.id,
+                'full_name': driver.full_name,
+                'passport': driver.passport,
+                'birth_date': driver.birth_date,
+                'driver_class': driver.driver_class,
+                'experience': driver.experience,
+                'salary': driver.salary
+            }
+            bus_types_data[bus_type.id]['buses'][bus.id]['drivers'].append(driver_data)
+
+        # Преобразуем словари в списки и добавляем к данным маршрута
+        for bus_type_id, bus_type_data in bus_types_data.items():
+            buses_list = list(bus_type_data['buses'].values())
+            route_data['bus_types'].append({
+                'id': bus_type_data['id'],
+                'name': bus_type_data['name'],
+                'capacity': bus_type_data['capacity'],
+                'buses': buses_list
+            })
+
+        # Возвращаем данные маршрута
+        return route_data
+```
+
+URLs:
+
+```python title="bus_depot_project/bus_depot_app/urls.py"
+urlpatterns = [
+    # ...
+    path('report/', ReportAPIView.as_view()),
+    # ...
+]
+```
+
+Пример запроса:
+
+```
+GET /bus-depot/report/
+```
+
+Пример ответа:
+
+```
+HTTP 200 OK
+Allow: GET, HEAD, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "summary": {
+        "total_routes": 2,
+        "total_route_length_minutes": 170,
+        "total_bus_types": 3,
+        "bus_type_distribution": {
+            "Маленький автобус": 1,
+            "Средний автобус": 1,
+            "Большой автобус": 1
+        },
+        "total_buses": 3,
+        "total_drivers": 3,
+        "drivers_average_experience": 7.7,
+        "drivers_class_distribution": {
+            "1": 2,
+            "2": 1,
+            "3": 0
+        }
+    },
+    "routes": [
+        {
+            "id": 1,
+            "number": "R1",
+            "start_point": "ул. Дзержинского, 18",
+            "end_point": "ул. Полевая, 24",
+            "start_time": "08:00:00",
+            "end_time": "20:00:00",
+            "interval": 15,
+            "duration": 50,
+            "bus_types": [
+                {
+                    "id": 1,
+                    "name": "Маленький автобус",
+                    "capacity": 10,
+                    "buses": [
+                        {
+                            "id": 1,
+                            "license_plate": "B1",
+                            "is_active": true,
+                            "purchase_date": "2020-01-01",
+                            "drivers": [
+                                {
+                                    "id": 1,
+                                    "full_name": "Фролов Олег Николаевич",
+                                    "passport": "2365898564",
+                                    "birth_date": "1980-05-02",
+                                    "driver_class": "1",
+                                    "experience": 5,
+                                    "salary": 80000
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "Средний автобус",
+                    "capacity": 20,
+                    "buses": [
+                        {
+                            "id": 2,
+                            "license_plate": "B2",
+                            "is_active": true,
+                            "purchase_date": "2020-01-02",
+                            "drivers": [
+                                {
+                                    "id": 2,
+                                    "full_name": "Кузнецов Николай Егорович",
+                                    "passport": "5236956324",
+                                    "birth_date": "1996-07-02",
+                                    "driver_class": "2",
+                                    "experience": 3,
+                                    "salary": 70000
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "number": "R2",
+            "start_point": "ул. Больничная, 48",
+            "end_point": "ул. Фрунзе, 35",
+            "start_time": "09:00:00",
+            "end_time": "21:00:00",
+            "interval": 30,
+            "duration": 120,
+            "bus_types": [
+                {
+                    "id": 3,
+                    "name": "Большой автобус",
+                    "capacity": 40,
+                    "buses": [
+                        {
+                            "id": 3,
+                            "license_plate": "B3",
+                            "is_active": true,
+                            "purchase_date": "2020-01-03",
+                            "drivers": [
+                                {
+                                    "id": 3,
+                                    "full_name": "Архипов Сергей Ильич",
+                                    "passport": "7859652345",
+                                    "birth_date": "1978-09-07",
+                                    "driver_class": "1",
+                                    "experience": 15,
+                                    "salary": 90000
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
