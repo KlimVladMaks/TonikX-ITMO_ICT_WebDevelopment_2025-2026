@@ -1,0 +1,3 @@
+<template>
+    Автобусный парк.
+</template>
