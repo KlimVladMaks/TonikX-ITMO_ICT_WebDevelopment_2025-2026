@@ -95,6 +95,7 @@ export default {
         Элементы не найдены
     </div>
     <div v-else>
+        <a href="">+ Добавить</a>
         <div v-for="item in items" :key="item.id">
             <p>{{ item.displayName }}</p>
             <div>
