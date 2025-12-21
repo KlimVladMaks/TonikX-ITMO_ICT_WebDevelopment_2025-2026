@@ -24,6 +24,12 @@ const routes = [
         props: true
     },
     {
+        path: '/list/:type/:id',
+        name: 'ItemPage',
+        component: () => import('@/views/ItemPage.vue'),
+        props: true
+    },
+    {
         path: '/',
         component: () => import('@/views/RootRedirect.vue')
     }

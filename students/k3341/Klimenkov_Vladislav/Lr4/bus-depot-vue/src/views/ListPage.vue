@@ -99,7 +99,9 @@ export default {
         <div v-for="item in items" :key="item.id">
             <p>{{ item.displayName }}</p>
             <div>
-                <button>Подробнее</button>
+                <router-link :to="{ name: 'ItemPage', params: { type: type, id: item.id } }">
+                    Подробнее
+                </router-link>
                 <button>Изменить</button>
                 <button>Удалить</button>
             </div>
