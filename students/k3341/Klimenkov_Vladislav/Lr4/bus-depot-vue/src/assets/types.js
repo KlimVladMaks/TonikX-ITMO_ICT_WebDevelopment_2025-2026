@@ -7,6 +7,8 @@ export const titles = {
     'bus-statuses': 'Статусы автобусов'
 }
 
+const dataCache = new Map();
+
 export const namingFunctions = {
     'bus-types': async (data) => {
         return `${data.name} (число мест: ${data.capacity})`
@@ -32,7 +34,17 @@ export const namingFunctions = {
     }
 }
 
+export function clearCache() {
+    dataCache.clear();
+}
+
 async function getForeignObject(type, id) {
+    const cacheKey = `${type}:${id}`;
+
+    if (dataCache.has(cacheKey)) {
+        return dataCache.get(cacheKey);
+    }
+
     try {
         const token = localStorage.getItem('auth_token');
         if (!token) return null
@@ -46,6 +58,7 @@ async function getForeignObject(type, id) {
         });
 
         const data = await response.json();
+        dataCache.set(cacheKey, data);
         return data;
     } catch {
         return null;

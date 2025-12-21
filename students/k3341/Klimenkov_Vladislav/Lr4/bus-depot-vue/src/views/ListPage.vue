@@ -1,6 +1,6 @@
 <script>
 import Header from '@/components/Header.vue';
-import { titles, namingFunctions } from '@/assets/types';
+import { titles, namingFunctions, clearCache } from '@/assets/types';
 
 export default {
     name: 'ListPage',
@@ -79,6 +79,7 @@ export default {
     },
     mounted() {
         this.fetchItems();
+        clearCache()
     },
 }
 </script>
