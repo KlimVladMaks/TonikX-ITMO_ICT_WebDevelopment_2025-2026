@@ -58,13 +58,6 @@ async function getForeignField(type, id, field) {
     return data[field];
 }
 
-async function getDriverName(id) {
-    const data = await getForeignObject('drivers', id)
-    if (!data) return id;
-    return `${data.full_name} (автобус: ${await getForeignField('buses', data.main_bus, 'license_plate')}, 
-            маршрут: ${await getForeignField('routes', data.main_route, 'number')})`
-}
-
 async function getBusName(id) {
     const data = await getForeignObject('buses', id)
     if (!data) return id;
