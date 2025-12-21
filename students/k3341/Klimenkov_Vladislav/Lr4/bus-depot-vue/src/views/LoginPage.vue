@@ -4,14 +4,12 @@ export default {
         return {
             username: '',
             password: '',
-            isLoading: false,
-            errorMessage: ''
+            isLoading: false
         }
     },
 
     methods: {
         async login() {
-            this.errorMessage = ''
             this.isLoading = true
 
             try {
@@ -33,11 +31,11 @@ export default {
                     console.log('Токен сохранён:', data.auth_token)
                     this.$router.push('/main')
                 } else {
-                    this.errorMessage = "Неверный логин или пароль"
+                    alert("Неверные имя пользователя или пароль")
                 }
             } catch (error) {
                 console.log('Ошибка соединения с сервером:', error)
-                this.errorMessage = 'Ошибка соединения с сервером'
+                alert('Ошибка соединения с сервером')
             } finally {
                 this.isLoading = false
             }
@@ -51,9 +49,6 @@ export default {
     <div>
         <a href="\auth">← Отмена</a>
         <h1>Вход</h1>
-        <div v-if="errorMessage" class="error-message">
-            {{ errorMessage }}
-        </div>
         <p>Логин:</p>
         <input
             type="text"
