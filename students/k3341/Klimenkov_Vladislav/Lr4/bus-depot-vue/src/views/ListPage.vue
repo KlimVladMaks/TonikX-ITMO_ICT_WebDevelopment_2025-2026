@@ -1,6 +1,6 @@
 <script>
 import Header from '@/components/Header.vue';
-import { titles } from '@/assets/types';
+import { titles, namingFunctions } from '@/assets/types';
 
 export default {
     name: 'ListPage',
@@ -56,12 +56,25 @@ export default {
                 }
 
                 this.items = await response.json();
+
+                for (const item of this.items) {
+                    if (namingFunctions[this.type]) {
+                        item.displayName = await namingFunctions[this.type](item);
+                    } else {
+                        item.displayName = `ID: ${item.id}`;
+                    }
+                }
             } catch (err) {
                 this.error = `Не удалось загрузить данные: ${err.message}`;
                 console.error('Ошибка загрузки:', err);
             } finally {
                 this.loading = false;
             }
+        },
+        async getObjectName(data) {
+            const objectName = await namingFunctions[this.type](data)
+            console.log(objectName)
+            return objectName
         }
     },
     mounted() {
@@ -83,7 +96,7 @@ export default {
     </div>
     <div v-else>
         <div v-for="item in items" :key="item.id">
-            <p>ID: {{ item.id }}</p>
+            <p>{{ item.displayName }}</p>
             <div>
                 <button>Подробнее</button>
                 <button>Изменить</button>
