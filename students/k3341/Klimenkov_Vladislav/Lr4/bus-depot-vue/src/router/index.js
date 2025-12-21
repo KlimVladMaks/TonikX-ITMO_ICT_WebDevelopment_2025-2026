@@ -18,6 +18,12 @@ const routes = [
         component: () => import("@/views/MainPage.vue")
     },
     {
+        path: '/list/:type',
+        name: 'ListPage',
+        component: () => import('@/views/ListPage.vue'),
+        props: true
+    },
+    {
         path: '/',
         component: () => import('@/views/RootRedirect.vue')
     }

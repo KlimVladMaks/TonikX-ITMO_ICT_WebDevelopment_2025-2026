@@ -14,22 +14,34 @@
         <h1>Автобусный парк</h1>
         <ul>
             <li>
-                <a href="">Типы автобусов</a>
+                <router-link :to="{ name: 'ListPage', params: { type: 'bus-types' } }">
+                    Типы автобусов
+                </router-link>
             </li>
             <li>
-                <a href="">Автобусы</a>
+                <router-link :to="{ name: 'ListPage', params: { type: 'buses' } }">
+                    Автобусы
+                </router-link>
             </li>
             <li>
-                <a href="">Маршруты</a>
+                <router-link :to="{ name: 'ListPage', params: { type: 'routes' } }">
+                    Маршруты
+                </router-link>
             </li>
             <li>
-                <a href="">Водители</a>
+                <router-link :to="{ name: 'ListPage', params: { type: 'drivers' } }">
+                    Водители
+                </router-link>
             </li>
             <li>
-                <a href="">Назначения водителей</a>
+                <router-link :to="{ name: 'ListPage', params: { type: 'driver-assignments' } }">
+                    Назначения водителей
+                </router-link>
             </li>
             <li>
-                <a href="">Статусы автобусов</a>
+                <router-link :to="{ name: 'ListPage', params: { type: 'bus-statuses' } }">
+                    Статусы автобусов
+                </router-link>
             </li>
         </ul>
     </div>

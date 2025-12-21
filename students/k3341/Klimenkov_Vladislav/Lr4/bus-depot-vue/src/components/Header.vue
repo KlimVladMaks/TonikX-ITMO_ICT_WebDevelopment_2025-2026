@@ -1,5 +1,6 @@
 <template>
     <div>
+        <a href="\main">Главная</a>
         <button @click="confirmLogout">
             Выйти
         </button>
