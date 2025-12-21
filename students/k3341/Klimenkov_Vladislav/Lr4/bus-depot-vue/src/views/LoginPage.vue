@@ -73,5 +73,7 @@ export default {
             <span v-if="isLoading">Вход...</span>
             <span v-else>Войти</span>
         </button>
+        <br>
+        <a href="\signup">Зарегистрироваться</a>
     </div>
 </template>
