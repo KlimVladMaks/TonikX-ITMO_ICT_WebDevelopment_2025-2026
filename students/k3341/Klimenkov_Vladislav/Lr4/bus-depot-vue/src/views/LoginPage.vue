@@ -36,6 +36,7 @@ export default {
                     this.errorMessage = "Неверный логин или пароль"
                 }
             } catch (error) {
+                console.log('Ошибка соединения с сервером:', error)
                 this.errorMessage = 'Ошибка соединения с сервером'
             } finally {
                 this.isLoading = false

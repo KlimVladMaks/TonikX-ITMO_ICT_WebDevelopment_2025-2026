@@ -1,26 +1,25 @@
 import {createRouter, createWebHistory} from "vue-router";
-import AuthPage from "@/views/AuthPage.vue";
-import LoginPage from "@/views/LoginPage.vue";
-import MainPage from "@/views/MainPage.vue";
-import SignUpPage from "@/views/SignUpPage.vue";
-
 
 const routes = [
     {
         path: '/auth',
-        component: AuthPage
+        component: () => import("@/views/AuthPage.vue")
     },
     {
         path: '/login',
-        component: LoginPage
+        component: () => import("@/views/LoginPage.vue")
     },
     {
         path: '/signup',
-        component: SignUpPage,
+        component: () => import("@/views/SignUpPage.vue"),
     },
     {
         path: '/main',
-        component: MainPage
+        component: () => import("@/views/MainPage.vue")
+    },
+    {
+        path: '/',
+        component: () => import('@/views/RootRedirect.vue')
     }
 ]
 
