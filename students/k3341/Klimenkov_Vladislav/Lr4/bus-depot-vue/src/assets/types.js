@@ -7,7 +7,14 @@ export const titles = {
     'bus-statuses': 'Статусы автобусов'
 }
 
-const dataCache = new Map();
+export const foreignKeys = {
+    'bus-types': [],
+    'buses': [['bus_type', 'bus_types']],
+    'routes': [],
+    'drivers': [['main_bus', 'buses'], ['main_route', 'routes']],
+    'driver-assignments': [['driver', 'drivers'], ['bus', 'buses'], ['route', 'routes']],
+    'bus-statuses': [['bus', 'buses']], 
+}
 
 export const namingFunctions = {
     'bus-types': async (data) => {
@@ -34,17 +41,7 @@ export const namingFunctions = {
     }
 }
 
-export function clearCache() {
-    dataCache.clear();
-}
-
-async function getForeignObject(type, id) {
-    const cacheKey = `${type}:${id}`;
-
-    if (dataCache.has(cacheKey)) {
-        return dataCache.get(cacheKey);
-    }
-
+async function getObject(type, id) {
     try {
         const token = localStorage.getItem('auth_token');
         if (!token) return null
@@ -58,7 +55,6 @@ async function getForeignObject(type, id) {
         });
 
         const data = await response.json();
-        dataCache.set(cacheKey, data);
         return data;
     } catch {
         return null;
@@ -66,13 +62,19 @@ async function getForeignObject(type, id) {
 }
 
 async function getForeignField(type, id, field) {
-    const data = await getForeignObject(type, id);
+    const data = await getObject(type, id);
     if (!data) return id;
     return data[field];
 }
 
 async function getBusName(id) {
-    const data = await getForeignObject('buses', id)
+    const data = await getObject('buses', id)
     if (!data) return id;
     return `${data.license_plate} (${await getForeignField('bus-types', data.bus_type, 'name')})`
+}
+
+export async function getObjectName(type, id) {
+    const data = await getObject(type, id)
+    const name = await namingFunctions[type](data)
+    return name
 }

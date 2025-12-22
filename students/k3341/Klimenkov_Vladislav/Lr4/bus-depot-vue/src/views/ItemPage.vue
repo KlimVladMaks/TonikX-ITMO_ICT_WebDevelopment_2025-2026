@@ -1,6 +1,6 @@
 <script>
 import Header from '@/components/Header.vue';
-import { namingFunctions, clearCache } from '@/assets/types';
+import { namingFunctions, foreignKeys, getObjectName } from '@/assets/types';
 
 export default {
     name: "ItemPage",
@@ -12,6 +12,16 @@ export default {
         id: {
             type: String,
             required: true
+        }
+    },
+    watch: {
+        type: {
+            handler: 'fetchItem',
+            immediate: true
+        },
+        id: {
+            handler: 'fetchItem',
+            immediate: true
         }
     },
     components: {
@@ -29,12 +39,17 @@ export default {
             loading: false,
             error: null,
             title: "",
+            foreignKeyNames: {},
+            foreignKeyTypes: {},
         }
     },
     methods: {
         async fetchItem() {
             this.loading = true;
             this.error = null;
+            this.foreignKeyNames = {};
+            this.foreignKeyTypes = {};
+            this.itemData = {};
 
             const token = localStorage.getItem('auth_token');
 
@@ -59,6 +74,8 @@ export default {
 
                 this.itemData = await response.json();
                 this.title = await namingFunctions[this.type](this.itemData);
+
+                await this.loadForeignKeyNames();
             } catch (err) {
                 this.error = `Не удалось загрузить данные: ${err.message}`;
                 console.error('Ошибка загрузки:', err);
@@ -66,10 +83,29 @@ export default {
                 this.loading = false;
             }
         },
-    },
-    mounted() {
-        this.fetchItem();
-        clearCache();
+        async loadForeignKeyNames() {
+            const fkList = foreignKeys[this.type] || [];
+
+            for (const [fieldName, targetType] of fkList) {
+                this.foreignKeyTypes[fieldName] = targetType
+                const idValue = this.itemData[fieldName];
+
+                try {
+                    const name = await getObjectName(targetType.replaceAll('_', '-'), idValue);
+                    this.foreignKeyNames[fieldName] = name;
+                } catch {
+                    this.foreignKeyNames[fieldName] = idValue;
+                }
+            }
+        },
+        isForeignKey(key) {
+            console.log(this.foreignKeyNames)
+            const fkList = foreignKeys[this.type] || [];
+            return fkList.some(([fieldName]) => fieldName === key);
+        },
+        navigateToItem(type, id) {
+            this.$router.push(`/list/${type}/${id}`);
+        },
     },
 }
 </script>
@@ -83,7 +119,20 @@ export default {
     <div v-else>
         <h1>{{ title }}</h1>
         <div v-for="(value, key) in itemData" :key="key">
-            <p><b>{{ key }}:</b> {{ value }}</p>
+            <p>
+                <b>{{ key }}:</b>
+                <div v-if="isForeignKey(key)">
+                    <a 
+                        href="javascript:void(0)"
+                        @click="navigateToItem(foreignKeyTypes[key].replaceAll('_', '-'), value)"
+                    >
+                        {{ foreignKeyNames[key] }}
+                    </a>
+                </div>
+                <div v-else>
+                    {{ value }}
+                </div>
+            </p>
         </div>
         <button>Изменить</button>
         <button>Удалить</button>
