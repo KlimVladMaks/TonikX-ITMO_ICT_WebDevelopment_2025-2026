@@ -82,7 +82,7 @@ export default {
 <template>
 <div>
     <Header></Header>
-    <a href="javascript:history.back()">← Назад</a>
+    <a href="/main">← Назад</a>
     <h1>{{ pageTitle }}</h1>
     <div v-if="loading">Загрузка...</div>
     <div v-else-if="error">{{ error }}</div>

@@ -1,6 +1,6 @@
 <script>
 import Header from '@/components/Header.vue';
-import { namingFunctions, foreignKeys, getObjectName } from '@/assets/types';
+import { namingFunctions, foreignKeys, getObjectName, titles } from '@/assets/types';
 
 export default {
     name: "ItemPage",
@@ -31,6 +31,9 @@ export default {
         apiUrl() {
             const baseUrl = 'http://127.0.0.1:8000/bus-depot';
             return `${baseUrl}/${this.type}/${this.id}`;
+        },
+        typeListBack() {
+            return titles[this.type] || this.type;
         }
     },
     data() {
@@ -99,12 +102,14 @@ export default {
             }
         },
         isForeignKey(key) {
-            console.log(this.foreignKeyNames)
             const fkList = foreignKeys[this.type] || [];
             return fkList.some(([fieldName]) => fieldName === key);
         },
         navigateToItem(type, id) {
             this.$router.push(`/list/${type}/${id}`);
+        },
+        navigateToList() {
+            this.$router.push(`/list/${this.type}`);
         },
     },
 }
@@ -114,6 +119,12 @@ export default {
 <div>
     <Header></Header>
     <a href="javascript:history.back()">← Назад</a>
+    <a 
+        href="javascript:void(0)"
+        @click="navigateToList()"
+    >
+        {{ typeListBack }}
+    </a>
     <div v-if="loading">Загрузка...</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
