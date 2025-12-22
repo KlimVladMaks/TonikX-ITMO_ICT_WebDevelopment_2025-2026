@@ -71,15 +71,10 @@ export default {
                 this.loading = false;
             }
         },
-        async getObjectName(data) {
-            const objectName = await namingFunctions[this.type](data)
-            console.log(objectName)
-            return objectName
-        }
     },
     mounted() {
         this.fetchItems();
-        clearCache()
+        clearCache();
     },
 }
 </script>
