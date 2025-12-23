@@ -28,6 +28,7 @@ export default {
 
                 if (response.ok && data.auth_token) {
                     localStorage.setItem('auth_token', data.auth_token)
+                    localStorage.setItem('username', this.username)
                     console.log('Токен сохранён:', data.auth_token)
                     this.$router.push('/main')
                 } else {

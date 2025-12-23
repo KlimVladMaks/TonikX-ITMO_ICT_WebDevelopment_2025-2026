@@ -1,6 +1,7 @@
 <template>
     <div>
         <a href="\main">Главная</a>
+        <a href="\profile">{{ username }}</a>
         <button @click="confirmLogout">
             Выйти
         </button>
@@ -11,6 +12,11 @@
 import axios from 'axios'
 
 export default {
+    data() {
+        return {
+            username: localStorage.getItem("username"),
+        }
+    },
     methods: {
         confirmLogout() {
             if (confirm('Вы уверены, что хотите выйти?')) {
@@ -38,6 +44,7 @@ export default {
 
         clearAuthAndRedirect() {
             localStorage.removeItem('auth_token')
+            localStorage.removeItem('username')
             this.$router.push('/auth')
         }
     }

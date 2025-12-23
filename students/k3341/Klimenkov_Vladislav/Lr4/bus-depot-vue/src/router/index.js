@@ -42,6 +42,11 @@ const routes = [
         props: true
     },
     {
+        path: '/profile',
+        name: 'ProfilePage',
+        component: () => import('@/views/ProfilePage.vue'),
+    },
+    {
         path: '/',
         component: () => import('@/views/RootRedirect.vue')
     }
