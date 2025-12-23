@@ -1,6 +1,6 @@
 <script>
 import Header from '@/components/Header.vue';
-import { fields, foreignKeys2, namingFunctions } from '@/assets/types.js';
+import { fields, foreignKeys2, namingFunctions, choices } from '@/assets/types.js';
 
 export default {
     name: "AddPage",
@@ -28,14 +28,20 @@ export default {
         },
         foreignKeysForType() {
             return foreignKeys2[this.type] || {};
-        }
+        },
     },
     methods: {
         isForeignKey(field) {
             return field in this.foreignKeysForType;
         },
+        isChoiceField(field) {
+            return field in choices;
+        },
         getOptionsForField(field) {
             return this.foreignKeyOptions[field] || [];
+        },
+        getChoicesForField(field) {
+            return choices[field] || [];
         },
         async loadForeignKeyOptions() {
             const promises = Object.entries(this.foreignKeysForType).map(async ([field, targetType]) => {
@@ -118,6 +124,19 @@ export default {
                         :value="option.name"
                     >
                         {{ option.name }}
+                    </option>
+                </select>
+
+                <select
+                    v-else-if="isChoiceField(field)"
+                    v-model="formData[field]"
+                >
+                    <option
+                        v-for="choice in getChoicesForField(field)"
+                        :key="choice"
+                        :value="choice"
+                    >
+                        {{ choice }}
                     </option>
                 </select>
 
