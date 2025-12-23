@@ -16,6 +16,26 @@ export const foreignKeys = {
     'bus-statuses': [['bus', 'buses']], 
 }
 
+export const foreignKeys2 = {
+    'bus-types': {
+        'bus_type': 'bus_types',
+    },
+    'buses': {},
+    'routes': {},
+    'drivers': {
+        'main_bus': 'buses',
+        'main_route': 'routes',
+    },
+    'driver-assignments': {
+        'driver': 'drivers',
+        'bus': 'buses',
+        'route': 'routes',
+    },
+    'bus-statuses': {
+        'bus': 'buses',
+    },
+}
+
 export const fields = {
     'bus-types': ['name', 'capacity'],
     'buses': ['license_plate', 'bus_type', 'is_active', 'purchase_date'],

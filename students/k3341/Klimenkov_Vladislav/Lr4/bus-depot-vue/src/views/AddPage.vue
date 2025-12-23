@@ -1,6 +1,6 @@
 <script>
 import Header from '@/components/Header.vue';
-import { fields } from '@/assets/types.js';
+import { fields, foreignKeys2, namingFunctions } from '@/assets/types.js';
 
 export default {
     name: "AddPage",
@@ -16,6 +16,7 @@ export default {
     data() {
         return {
             formData: {},
+            foreignKeyOptions: {},
         }
     },
     computed: {
@@ -25,47 +26,103 @@ export default {
         apiBaseUrl() {
             return 'http://127.0.0.1:8000/bus-depot';
         },
-    },
-    methods: {
-        async handleSubmit() {
-            try {
-                const token = localStorage.getItem('auth_token');
-
-                const requestData = { ...this.formData };
-
-                const response = await fetch(`${this.apiBaseUrl}/${this.type}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Token ${token}`
-                    },
-                    body: JSON.stringify(requestData)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}`);
-                }
-
-                this.$router.push(`/list/${this.type}`);
-            } catch {
-                alert("Ошибка сервера")
-            }
+        foreignKeysForType() {
+            return foreignKeys2[this.type] || {};
         }
     },
+    methods: {
+        isForeignKey(field) {
+            return field in this.foreignKeysForType;
+        },
+        getOptionsForField(field) {
+            return this.foreignKeyOptions[field] || [];
+        },
+        async loadForeignKeyOptions() {
+            const promises = Object.entries(this.foreignKeysForType).map(async ([field, targetType]) => {
+                const token = localStorage.getItem('auth_token');
+                const response = await fetch(`${this.apiBaseUrl}/${targetType.replaceAll('_', '-')}/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                const items = await response.json();
+                const optionPromises = items.map(async (item) => {
+                    const namingFunc = namingFunctions[targetType.replaceAll('_', '-')];
+                    let name = '';
+                    name = await namingFunc(item);
+                    return {
+                        id: item.id,
+                        name: name
+                    };
+                });
+                const options = await Promise.all(optionPromises);
+                this.foreignKeyOptions[field] = options;
+            });
+            await Promise.all(promises);
+        },
+        async handleSubmit() {
+            const token = localStorage.getItem('auth_token');
+            const requestData = { ...this.formData };
+            Object.keys(this.foreignKeysForType).forEach(field => {
+                const options = this.getOptionsForField(field);
+                const selectedOption = options.find(opt => opt.name === requestData[field]);
+                if (selectedOption) {
+                    requestData[field] = selectedOption.id;
+                }
+            });
+            const response = await fetch(`${this.apiBaseUrl}/${this.type}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`
+                },
+                body: JSON.stringify(requestData)
+            });
+            if (!response.ok) {
+                throw new Error(`Ошибка сервера: ${response.status}`);
+            }
+            this.$router.push(`/list/${this.type}`);
+        },
+    },
+    watch: {
+        type: {
+            immediate: true,
+            handler() {
+                this.foreignKeyOptions = {};
+                this.formData = {};
+                this.loadForeignKeyOptions();
+            }
+        }
+    }
 }
 </script>
+
 
 <template>
     <div>
         <Header></Header>
-
         <a href="javascript:history.back()">← Отмена</a>
         <h1>Добавление {{ type }}</h1>
 
         <form @submit.prevent="handleSubmit">
             <div v-for="field in fieldsForType" :key="field">
-                <p>{{ field }}</p>
+                <p>{{ field }}:</p>
+
+                <select 
+                    v-if="isForeignKey(field)"
+                    v-model="formData[field]"
+                >
+                    <option
+                        v-for="option in getOptionsForField(field)"
+                        :key="option.id"
+                        :value="option.name"
+                    >
+                        {{ option.name }}
+                    </option>
+                </select>
+
                 <input
+                    v-else
                     type="text"
                     v-model="formData[field]"
                 >
