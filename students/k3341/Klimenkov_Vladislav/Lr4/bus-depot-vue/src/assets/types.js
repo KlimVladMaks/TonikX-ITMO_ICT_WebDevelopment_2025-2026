@@ -16,6 +16,20 @@ export const foreignKeys = {
     'bus-statuses': [['bus', 'buses']], 
 }
 
+export const fields = {
+    'bus-types': ['name', 'capacity'],
+    'buses': ['license_plate', 'bus_type', 'is_active', 'purchase_date'],
+    'routes': ['number', 'start_point', 'end_point', 'start_time', 'end_time', 'interval', 'duration'],
+    'drivers': ['full_name', 'passport', 'birth_date', 'driver_class', 'experience', 'salary', 'main_bus', 'main_route'],
+    'driver-assignments': ['driver', 'bus', 'route', 'date', 'start_time', 'end_time'],
+    'bus-statuses': ['bus', 'date', 'status', 'reason'],
+}
+
+export const choices = {
+    'driver_class': ['1', '2', '3'],
+    'status': ['active', 'not_active', 'broken', 'no_driver']
+}
+
 export const namingFunctions = {
     'bus-types': async (data) => {
         return `${data.name} (число мест: ${data.capacity})`

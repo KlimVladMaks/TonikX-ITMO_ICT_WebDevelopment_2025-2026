@@ -72,7 +72,7 @@ export default {
             }
         },
         goToAddPage() {
-            this.$router.push('/list/${this.type}/add')
+            this.$router.push(`/list/${this.type}/add`)
         }
     },
     mounted() {
