@@ -71,6 +71,9 @@ export default {
                 this.loading = false;
             }
         },
+        goToAddPage() {
+            this.$router.push('/list/${this.type}/add')
+        }
     },
     mounted() {
         this.fetchItems();
@@ -90,7 +93,12 @@ export default {
         Элементы не найдены
     </div>
     <div v-else>
-        <a href="">+ Добавить</a>
+        <a 
+            href="javascript:void(0)"
+            @click="goToAddPage()"
+        >
+            + Добавить
+        </a>
         <div v-for="item in items" :key="item.id">
             <p>{{ item.displayName }}</p>
             <div>

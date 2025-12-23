@@ -30,6 +30,12 @@ const routes = [
         props: true
     },
     {
+        path: '/list/:type/add',
+        name: 'AddPage',
+        component: () => import('@/views/AddPage.vue'),
+        props: true
+    },
+    {
         path: '/',
         component: () => import('@/views/RootRedirect.vue')
     }
