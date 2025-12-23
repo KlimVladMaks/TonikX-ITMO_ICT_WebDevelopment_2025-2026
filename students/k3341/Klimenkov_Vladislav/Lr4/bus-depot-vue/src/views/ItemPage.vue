@@ -145,7 +145,9 @@ export default {
                 </div>
             </p>
         </div>
-        <button>Изменить</button>
+        <router-link :to="{ name: 'EditPage', params: { type: type, id: id } }">
+            Изменить
+        </router-link>
         <button>Удалить</button>
     </div>
 </div>

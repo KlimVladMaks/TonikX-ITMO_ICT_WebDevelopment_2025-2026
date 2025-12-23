@@ -36,6 +36,12 @@ const routes = [
         props: true
     },
     {
+        path: '/list/:type/:id/edit',
+        name: 'EditPage',
+        component: () => import('@/views/EditPage.vue'),
+        props: true
+    },
+    {
         path: '/',
         component: () => import('@/views/RootRedirect.vue')
     }
