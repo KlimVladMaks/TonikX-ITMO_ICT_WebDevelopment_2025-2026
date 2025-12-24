@@ -17,6 +17,7 @@ export default {
         handleUsernameUpdated(newUsername) {
             this.username = newUsername;
             this.showEditUsername = false;
+            this.$refs.header.updateUsername();
         },
         handleEditCancel() {
             this.showEditUsername = false;
@@ -27,7 +28,7 @@ export default {
 
 
 <template>
-    <Header></Header>
+    <Header ref="header"></Header>
     <h1>Профиль пользователя</h1>
 
     <EditUsername
@@ -37,10 +38,11 @@ export default {
         @cancel="handleEditCancel"
     />
 
-    <div>
+    <div v-else>
         <p><b>Логин:</b></p>
         <p>{{ username }}</p>
-        <button>Изменить</button>
+        <button @click="showEditUsername = true">Изменить</button>
+
         <p><b>Пароль:</b></p>
         <button>Изменить</button>
     </div>

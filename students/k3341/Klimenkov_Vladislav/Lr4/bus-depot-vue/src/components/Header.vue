@@ -46,6 +46,10 @@ export default {
             localStorage.removeItem('auth_token')
             localStorage.removeItem('username')
             this.$router.push('/auth')
+        },
+
+        updateUsername() {
+            this.username = localStorage.getItem("username");
         }
     }
 }

@@ -41,7 +41,7 @@ export default {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        current_password: this.password,
+                        // current_password: this.password,
                         username: this.newUsername
                     })
                 });
@@ -49,7 +49,6 @@ export default {
                 if (response.ok) {
                     localStorage.setItem('username', this.newUsername);
                     this.$emit('username-updated', this.newUsername);
-                    alert('Логин успешно изменён!');
                 } else {
                     alert('Ошибка при изменении логина');
                 }
@@ -66,7 +65,7 @@ export default {
 <template>
 <div>
     <a href="javascript:void(0)" @click="handleCancel">← Отмена</a>
-    <h2>Изменить логин</h2>
+    <h2>Изменить логин '{{ currentUsername }}'</h2>
 
     <p>Пароль:</p>
     <input
@@ -80,6 +79,7 @@ export default {
         v-model="newUsername"
     >
 
+    <br>
     <button @click="handleSave">
         Сохранить
     </button>
