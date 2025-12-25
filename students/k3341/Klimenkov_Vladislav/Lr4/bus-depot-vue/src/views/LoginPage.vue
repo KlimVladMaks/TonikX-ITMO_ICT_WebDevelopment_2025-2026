@@ -46,35 +46,6 @@ export default {
 </script>
 
 
-<!-- <template>
-    <div>
-        <a href="\auth">← Отмена</a>
-        <h1>Вход</h1>
-        <p>Логин:</p>
-        <input
-            type="text"
-            v-model="username"
-            :disabled="isLoading"
-        >
-        <p>Пароль:</p>
-        <input
-            type="password"
-            v-model="password"
-            :disabled="isLoading"
-        >
-        <br>
-        <button
-            @click="login"
-            :disabled="isLoading || !username || !password"
-        >
-            <span v-if="isLoading">Вход...</span>
-            <span v-else>Войти</span>
-        </button>
-        <br>
-        <a href="\signup">Зарегистрироваться</a>
-    </div>
-</template> -->
-
 <template>
   <v-container class="fill-height" fluid>
     <v-row justify="center" align="center">

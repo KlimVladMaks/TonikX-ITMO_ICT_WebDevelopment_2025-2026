@@ -50,33 +50,6 @@ export default {
 </script>
 
 
-<!-- <template>
-    <div>
-        <a href="\auth">← Отмена</a>
-
-        <h1>Регистрация</h1>
-
-        <p>Логин:</p>
-        <input v-model="username" type="text">
-
-        <p>Пароль:</p>
-        <input v-model="password" type="password">
-
-        <p>Повторить пароль:</p>
-        <input v-model="rePassword" type="password">
-
-        <br>
-        <button
-            @click="createAccount"
-            :disabled="isLoading || !username || !password || !rePassword"
-        >
-            {{ isLoading ? 'Создание...' : 'Создать аккаунт' }}
-        </button>
-        <br>
-        <a href="/login">Войти</a>
-    </div>
-</template> -->
-
 <template>
   <v-container class="fill-height" fluid>
     <v-row justify="center" align="center">
