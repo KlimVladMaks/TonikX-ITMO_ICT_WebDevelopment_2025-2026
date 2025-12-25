@@ -34,10 +34,6 @@ export default {
 
             try {
                 const token = localStorage.getItem('auth_token');
-                console.log(JSON.stringify({
-                        current_password: this.password,
-                        new_username: this.newUsername
-                    }));
                 const response = await fetch('http://127.0.0.1:8000/auth/users/set_username/', {
                     method: 'POST',
                     headers: {
@@ -54,7 +50,6 @@ export default {
                     localStorage.setItem('username', this.newUsername);
                     this.$emit('username-updated', this.newUsername);
                 } else {
-                    console.log(response)
                     alert('Ошибка при изменении логина');
                 }
             } catch (error) {
