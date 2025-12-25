@@ -43,8 +43,7 @@ export default {
         },
 
         clearAuthAndRedirect() {
-            localStorage.removeItem('auth_token')
-            localStorage.removeItem('username')
+            localStorage.clear()
             this.$router.push('/auth')
         },
 

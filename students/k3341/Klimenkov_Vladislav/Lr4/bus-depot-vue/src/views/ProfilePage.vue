@@ -2,31 +2,33 @@
 import Header from '@/components/Header.vue';
 import EditUsername from '@/components/EditUsername.vue';
 import EditPassword from '@/components/EditPassword.vue';
+import DeleteProfile from '@/components/DeleteProfile.vue';
 
 export default {
     components: {
         Header,
         EditUsername,
         EditPassword,
+        DeleteProfile,
     },
     data() {
         return {
             username: localStorage.getItem("username"),
-            edit: null,
+            operation: null,
         }
     },
     methods: {
         handleUsernameUpdated(newUsername) {
             this.username = newUsername;
-            this.edit = null;
+            this.operation = null;
             this.$refs.header.updateUsername();
         },
         handlePasswordUpdated() {
-            this.edit = null;
+            this.operation = null;
             alert('Пароль успешно изменён');
         },
-        handleCancelEdit() {
-            this.edit = null;
+        handleCancelOperation() {
+            this.operation = null;
         },
     },
 }
@@ -38,24 +40,33 @@ export default {
     <h1>Профиль пользователя</h1>
 
     <EditUsername
-        v-if="edit === 'username'"
+        v-if="operation === 'edit_username'"
         :current-username="username"
         @username-updated="handleUsernameUpdated"
-        @cancel="handleCancelEdit"
+        @cancel="handleCancelOperation"
     />
 
     <EditPassword 
-        v-else-if="edit === 'password'"
-        @cancel="handleCancelEdit"
+        v-else-if="operation === 'edit_password'"
+        @cancel="handleCancelOperation"
         @success="handlePasswordUpdated"
     ></EditPassword>
+
+    <DeleteProfile
+        v-else-if="operation === 'delete_profile'"
+        @cancel="handleCancelOperation"
+    >
+    </DeleteProfile>
 
     <div v-else>
         <p><b>Логин:</b></p>
         <p>{{ username }}</p>
-        <button @click="edit = 'username'">Изменить</button>
+        <button @click="operation = 'edit_username'">Изменить</button>
 
         <p><b>Пароль:</b></p>
-        <button @click="edit = 'password'">Изменить</button>
+        <button @click="operation = 'edit_password'">Изменить</button>
+
+        <p><b>Профиль:</b></p>
+        <button @click="operation = 'delete_profile'">Удалить профиль</button>
     </div>
 </template>
