@@ -106,36 +106,97 @@ export default {
 
 
 <template>
-<div>
-    <Header></Header>
-    <a href="/main">← Назад</a>
-    <h1>{{ pageTitle }}</h1>
-    <div v-if="loading">Загрузка...</div>
-    <div v-else-if="error">{{ error }}</div>
-    <div v-else-if="items.length === 0">
-        Элементы не найдены
-    </div>
-    <div v-else>
-        <a 
-            href="javascript:void(0)"
-            @click="goToAddPage()"
-        >
-            + Добавить
-        </a>
-        <div v-for="item in items" :key="item.id">
-            <p>{{ item.displayName }}</p>
-            <div>
-                <router-link :to="{ name: 'ItemPage', params: { type: type, id: item.id } }">
-                    Подробнее
-                </router-link>
-                <router-link :to="{ name: 'EditPage', params: { type: type, id: item.id } }">
-                    Изменить
-                </router-link>
-                <button @click="deleteItem(item.id, item.displayName)">
-                    Удалить
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<v-app>
+  <Header />
+  
+  <v-main>
+    <v-container>
+      <v-row>
+        <v-col>
+          <v-btn
+            text
+            plain
+            :to="{ path: '/main' }"
+            class="mb-4"
+          >
+            <v-icon>mdi-arrow-left</v-icon>
+            Назад
+          </v-btn>
+          
+          <v-card flat>
+            <v-card-title class="text-h4">
+              {{ pageTitle }}
+            </v-card-title>
+            
+            <v-card-text>
+              <div v-if="loading" class="text-center py-8">
+                <v-progress-circular indeterminate />
+              </div>
+              
+              <div v-else-if="error" class="text-center py-8">
+                <v-alert type="error" text>
+                  {{ error }}
+                </v-alert>
+              </div>
+              
+              <div v-else-if="items.length === 0" class="text-center py-8">
+                <v-alert type="info" text>
+                  Элементы не найдены
+                </v-alert>
+              </div>
+              
+              <div v-else>
+                <v-btn
+                  color="primary"
+                  class="mb-4"
+                  @click="goToAddPage"
+                >
+                  + Добавить
+                </v-btn>
+                
+                <v-list>
+                  <v-list-item
+                    v-for="item in items"
+                    :key="item.id"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ item.displayName }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+                    
+                    <v-list-item-action>
+                      <v-btn
+                        :to="{ name: 'ItemPage', params: { type: type, id: item.id } }"
+                        class="mr-2"
+                        color="grey lighten"
+                      >
+                        Подобнее
+                      </v-btn>
+                      
+                      <v-btn
+                        :to="{ name: 'EditPage', params: { type: type, id: item.id } }"
+                        class="mr-2"
+                        color="grey lighten"
+                      >
+                        Изменить
+                      </v-btn>
+                      
+                      <v-btn
+                        color="error"
+                        @click="deleteItem(item.id, item.displayName)"
+                      >
+                        Удалить
+                      </v-btn>
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-main>
+</v-app>
 </template>
