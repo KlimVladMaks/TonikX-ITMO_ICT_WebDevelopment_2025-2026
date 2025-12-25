@@ -1,27 +1,33 @@
 <script>
 import Header from '@/components/Header.vue';
 import EditUsername from '@/components/EditUsername.vue';
+import EditPassword from '@/components/EditPassword.vue';
 
 export default {
     components: {
         Header,
         EditUsername,
+        EditPassword,
     },
     data() {
         return {
             username: localStorage.getItem("username"),
-            showEditUsername: false,
+            edit: null,
         }
     },
     methods: {
         handleUsernameUpdated(newUsername) {
             this.username = newUsername;
-            this.showEditUsername = false;
+            this.edit = null;
             this.$refs.header.updateUsername();
         },
-        handleEditCancel() {
-            this.showEditUsername = false;
-        }
+        handlePasswordUpdated() {
+            this.edit = null;
+            alert('Пароль успешно изменён');
+        },
+        handleCancelEdit() {
+            this.edit = null;
+        },
     },
 }
 </script>
@@ -32,18 +38,24 @@ export default {
     <h1>Профиль пользователя</h1>
 
     <EditUsername
-        v-if="showEditUsername"
+        v-if="edit === 'username'"
         :current-username="username"
         @username-updated="handleUsernameUpdated"
-        @cancel="handleEditCancel"
+        @cancel="handleCancelEdit"
     />
+
+    <EditPassword 
+        v-else-if="edit === 'password'"
+        @cancel="handleCancelEdit"
+        @success="handlePasswordUpdated"
+    ></EditPassword>
 
     <div v-else>
         <p><b>Логин:</b></p>
         <p>{{ username }}</p>
-        <button @click="showEditUsername = true">Изменить</button>
+        <button @click="edit = 'username'">Изменить</button>
 
         <p><b>Пароль:</b></p>
-        <button>Изменить</button>
+        <button @click="edit = 'password'">Изменить</button>
     </div>
 </template>
