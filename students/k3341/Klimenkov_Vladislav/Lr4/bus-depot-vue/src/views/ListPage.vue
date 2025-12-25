@@ -20,7 +20,11 @@ export default {
         apiUrl() {
             const baseUrl = 'http://127.0.0.1:8000/bus-depot';
             return `${baseUrl}/${this.type}/`;
-        }
+        },
+        deleteUrl() {
+            const baseUrl = 'http://127.0.0.1:8000/bus-depot';
+            return (id) => `${baseUrl}/${this.type}/${id}/`;
+        },
     },
     data() {
         return {
@@ -71,6 +75,25 @@ export default {
                 this.loading = false;
             }
         },
+        async deleteItem(id, name) {
+            if (!confirm(`Вы уверены, что хотите удалить '${name}'`)) {
+                return;
+            }
+            const token = localStorage.getItem('auth_token');
+            const response = await fetch(this.deleteUrl(id), {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                this.items = this.items.filter(item => item.id !== id);
+
+            } else {
+                alert("При удалении элемента возникла ошибка");
+            }
+        },
         goToAddPage() {
             this.$router.push(`/list/${this.type}/add`)
         }
@@ -108,7 +131,9 @@ export default {
                 <router-link :to="{ name: 'EditPage', params: { type: type, id: item.id } }">
                     Изменить
                 </router-link>
-                <button>Удалить</button>
+                <button @click="deleteItem(item.id, item.displayName)">
+                    Удалить
+                </button>
             </div>
         </div>
     </div>

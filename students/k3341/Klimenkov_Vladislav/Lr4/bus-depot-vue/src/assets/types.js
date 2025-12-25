@@ -17,10 +17,10 @@ export const foreignKeys = {
 }
 
 export const foreignKeys2 = {
-    'bus-types': {
+    'bus-types': {},
+    'buses': {
         'bus_type': 'bus_types',
     },
-    'buses': {},
     'routes': {},
     'drivers': {
         'main_bus': 'buses',
