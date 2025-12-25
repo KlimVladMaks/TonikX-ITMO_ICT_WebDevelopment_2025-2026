@@ -50,7 +50,7 @@ export default {
 </script>
 
 
-<template>
+<!-- <template>
     <div>
         <a href="\auth">← Отмена</a>
 
@@ -75,4 +75,68 @@ export default {
         <br>
         <a href="/login">Войти</a>
     </div>
+</template> -->
+
+<template>
+  <v-container class="fill-height" fluid>
+    <v-row justify="center" align="center">
+      <v-col cols="12" sm="8" md="6" lg="4">
+        <v-card flat>
+          <v-card-title>
+            <v-btn :to="{ path: '/auth' }" class="mb-4" color="grey lighten-2">
+              <v-icon>mdi-arrow-left</v-icon>
+              Отмена
+            </v-btn>
+            <br>
+            <span class="text-h4">Регистрация</span>
+          </v-card-title>
+
+          <v-card-text>
+            <v-text-field
+              v-model="username"
+              label="Логин"
+              :disabled="isLoading"
+              outlined
+              clearable
+            ></v-text-field>
+
+            <v-text-field
+              v-model="password"
+              label="Пароль"
+              type="password"
+              :disabled="isLoading"
+              outlined
+              clearable
+            ></v-text-field>
+
+            <v-text-field
+              v-model="rePassword"
+              label="Повторить пароль"
+              type="password"
+              :disabled="isLoading"
+              outlined
+              clearable
+            ></v-text-field>
+
+            <v-btn
+              block
+              color="primary"
+              @click="createAccount"
+              :disabled="isLoading || !username || !password || !rePassword"
+              :loading="isLoading"
+              large
+            >
+              Создать аккаунт
+            </v-btn>
+
+            <div class="text-center mt-4">
+              <router-link to="/login" class="text-decoration-none">
+                Войти
+              </router-link>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
