@@ -34,7 +34,11 @@ export default {
         },
         typeListBack() {
             return titles[this.type] || this.type;
-        }
+        },
+        deleteUrl() {
+            const baseUrl = 'http://127.0.0.1:8000/bus-depot';
+            return (id) => `${baseUrl}/${this.type}/${id}/`;
+        },
     },
     data() {
         return {
@@ -101,6 +105,24 @@ export default {
                 }
             }
         },
+        async deleteItem(id, name) {
+            if (!confirm(`Вы уверены, что хотите удалить '${name}'`)) {
+                return;
+            }
+            const token = localStorage.getItem('auth_token');
+            const response = await fetch(this.deleteUrl(id), {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                this.$router.push(`/list/${this.type}`);
+            } else {
+                alert("При удалении элемента возникла ошибка");
+            }
+        },
         isForeignKey(key) {
             const fkList = foreignKeys[this.type] || [];
             return fkList.some(([fieldName]) => fieldName === key);
@@ -148,7 +170,9 @@ export default {
         <router-link :to="{ name: 'EditPage', params: { type: type, id: id } }">
             Изменить
         </router-link>
-        <button>Удалить</button>
+        <button @click="deleteItem(id, title)">
+            Удалить
+        </button>
     </div>
 </div>
 </template>
