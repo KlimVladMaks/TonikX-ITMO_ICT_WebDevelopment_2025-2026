@@ -159,12 +159,11 @@ export default {
                     v-for="item in items"
                     :key="item.id"
                   >
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{ item.displayName }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                    
+
+                    <v-list-item-title>
+                      {{ item.displayName }}
+                    </v-list-item-title>
+
                     <v-list-item-action>
                       <v-btn
                         :to="{ name: 'ItemPage', params: { type: type, id: item.id } }"

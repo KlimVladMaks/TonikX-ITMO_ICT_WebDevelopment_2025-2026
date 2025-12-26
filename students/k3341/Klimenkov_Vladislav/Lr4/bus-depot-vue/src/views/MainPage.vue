@@ -25,7 +25,7 @@
   <v-container class="pa-4">
     <Header />
     
-    <v-row justify="center" class="mt-4 mb-8">
+    <v-row justify="center" class="mb-8">
       <v-col cols="12" class="text-center">
         <h1 class="text-h4 font-weight-medium">Автобусный парк</h1>
       </v-col>

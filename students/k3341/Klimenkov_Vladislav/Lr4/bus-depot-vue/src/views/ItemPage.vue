@@ -192,7 +192,7 @@ export default {
                   <div class="font-weight-bold">{{ key }}:</div>
                   <div v-if="isForeignKey(key)">
                     <a 
-                      href="#"
+                      href="javascript:void(0)"
                       @click="navigateToItem(foreignKeyTypes[key].replaceAll('_', '-'), value)"
                     >
                       {{ foreignKeyNames[key] }}
