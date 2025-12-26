@@ -155,51 +155,65 @@ export default {
 
 
 <template>
-<div>
-    <Header></Header>
-    <a href="javascript:history.back()">← Отмена</a>
-    <h1>Редактирование '{{ itemName }}'</h1>
+  <Header />
+  
+  <v-container>
+    <v-btn
+      class="mb-4"
+      @click="$router.go(-1)"
+    >
+      <v-icon>mdi-arrow-left</v-icon>
+      Отмена
+    </v-btn>
 
-    <form @submit.prevent="handleSubmit">
-        <div v-for="field in fieldsForType" :key="field">
-            <p>{{ field }}:</p>
+    <v-card flat>
+      <v-card-title class="text-h5">
+        Редактирование '{{ itemName }}'
+      </v-card-title>
 
-            <select 
+      <v-form @submit.prevent="handleSubmit">
+        <v-card-text>
+          <v-row>
+            <v-col
+              v-for="field in fieldsForType"
+              :key="field"
+              cols="12"
+            >
+              <v-select
                 v-if="isForeignKey(field)"
                 v-model="formData[field]"
-            >
-                <option
-                    v-for="option in getOptionsForField(field)"
-                    :key="option.id"
-                    :value="option.name"
-                >
-                    {{ option.name }}
-                </option>
-            </select>
+                :label="field"
+                :items="getOptionsForField(field).map(opt => opt.name)"
+                clearable
+              />
 
-            <select
+              <v-select
                 v-else-if="isChoiceField(field)"
                 v-model="formData[field]"
-            >
-                <option
-                    v-for="choice in getChoicesForField(field)"
-                    :key="choice"
-                    :value="choice"
-                >
-                    {{ choice }}
-                </option>
-            </select>
+                :label="field"
+                :items="getChoicesForField(field)"
+                clearable
+              />
 
-            <input
+              <v-text-field
                 v-else
-                type="text"
                 v-model="formData[field]"
-            >
-        </div>
+                :label="field"
+                clearable
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
 
-        <button type="submit" >
+        <v-card-actions>
+          <v-btn
+            type="submit"
+            color="primary"
+          >
             Сохранить
-        </button>
-    </form>
-</div>
+          </v-btn>
+        </v-card-actions>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>

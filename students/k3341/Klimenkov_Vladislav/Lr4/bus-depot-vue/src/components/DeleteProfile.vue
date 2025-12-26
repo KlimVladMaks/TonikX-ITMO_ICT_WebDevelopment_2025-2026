@@ -40,12 +40,22 @@ export default {
 
 
 <template>
-<div>
-    <a href="javascript:void(0)" @click="handleCancel">← Отмена</a>
-    <h2>Удаление профиля '{{ username }}'</h2>
-    <p>Введите пароль:</p>
-    <input type="password" v-model="password">
-    <br>
-    <button @click="deleteProfile">Удалить профиль</button>
-</div>
+    <v-card style="max-width: 800px;">
+        <v-card-title>
+            <v-btn @click="handleCancel" class="mb-4">
+                <v-icon>mdi-arrow-left</v-icon>
+                Отмена
+            </v-btn>
+            <br>
+            Удаление профиля '{{ username }}'
+        </v-card-title>
+        
+        <v-card-text>
+            <v-text-field v-model="password" label="Введите пароль" type="password" />
+        </v-card-text>
+        
+        <v-card-actions>
+            <v-btn @click="deleteProfile" color="error">Удалить профиль</v-btn>
+        </v-card-actions>
+    </v-card>
 </template>

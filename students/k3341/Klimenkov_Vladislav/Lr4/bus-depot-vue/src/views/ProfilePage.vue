@@ -36,37 +36,51 @@ export default {
 
 
 <template>
-    <Header ref="header"></Header>
-    <h1>Профиль пользователя</h1>
+    <v-container style="max-width: 800px;">
+        <Header ref="header"></Header>
+        
+        <h1 class="text-h4 mb-6">Профиль пользователя</h1>
 
-    <EditUsername
-        v-if="operation === 'edit_username'"
-        :current-username="username"
-        @username-updated="handleUsernameUpdated"
-        @cancel="handleCancelOperation"
-    />
+        <EditUsername
+            v-if="operation === 'edit_username'"
+            :current-username="username"
+            @username-updated="handleUsernameUpdated"
+            @cancel="handleCancelOperation"
+        />
 
-    <EditPassword 
-        v-else-if="operation === 'edit_password'"
-        @cancel="handleCancelOperation"
-        @success="handlePasswordUpdated"
-    ></EditPassword>
+        <EditPassword 
+            v-else-if="operation === 'edit_password'"
+            @cancel="handleCancelOperation"
+            @success="handlePasswordUpdated"
+        />
 
-    <DeleteProfile
-        v-else-if="operation === 'delete_profile'"
-        @cancel="handleCancelOperation"
-    >
-    </DeleteProfile>
+        <DeleteProfile
+            v-else-if="operation === 'delete_profile'"
+            @cancel="handleCancelOperation"
+        />
 
-    <div v-else>
-        <p><b>Логин:</b></p>
-        <p>{{ username }}</p>
-        <button @click="operation = 'edit_username'">Изменить</button>
+        <div v-else>
+            <v-card class="mb-4">
+                <v-card-title>Логин</v-card-title>
+                <v-card-text>{{ username }}</v-card-text>
+                <v-card-actions>
+                    <v-btn @click="operation = 'edit_username'" color="primary">Изменить</v-btn>
+                </v-card-actions>
+            </v-card>
 
-        <p><b>Пароль:</b></p>
-        <button @click="operation = 'edit_password'">Изменить</button>
+            <v-card class="mb-4">
+                <v-card-title>Пароль</v-card-title>
+                <v-card-actions>
+                    <v-btn @click="operation = 'edit_password'" color="primary">Изменить</v-btn>
+                </v-card-actions>
+            </v-card>
 
-        <p><b>Профиль:</b></p>
-        <button @click="operation = 'delete_profile'">Удалить профиль</button>
-    </div>
+            <v-card>
+                <v-card-title>Профиль</v-card-title>
+                <v-card-actions>
+                    <v-btn @click="operation = 'delete_profile'" color="error">Удалить профиль</v-btn>
+                </v-card-actions>
+            </v-card>
+        </div>
+    </v-container>
 </template>

@@ -63,25 +63,23 @@ export default {
 
 
 <template>
-<div>
-    <a href="javascript:void(0)" @click="handleCancel">← Отмена</a>
-    <h2>Изменить логин '{{ currentUsername }}'</h2>
-
-    <p>Пароль:</p>
-    <input
-        type="password"
-        v-model="password"
-    >
-
-    <p>Новый логин:</p>
-    <input
-        type="text"
-        v-model="newUsername"
-    >
-
-    <br>
-    <button @click="handleSave">
-        Сохранить
-    </button>
-</div>
+    <v-card style="max-width: 800px;">
+        <v-card-title>
+            <v-btn @click="handleCancel" class="mb-4">
+                <v-icon>mdi-arrow-left</v-icon>
+                Отмена
+            </v-btn>
+            <br>
+            Изменить логин '{{ currentUsername }}'
+        </v-card-title>
+        
+        <v-card-text>
+            <v-text-field v-model="password" label="Пароль" type="password" />
+            <v-text-field v-model="newUsername" label="Новый логин" />
+        </v-card-text>
+        
+        <v-card-actions>
+            <v-btn @click="handleSave" color="primary">Сохранить</v-btn>
+        </v-card-actions>
+    </v-card>
 </template>

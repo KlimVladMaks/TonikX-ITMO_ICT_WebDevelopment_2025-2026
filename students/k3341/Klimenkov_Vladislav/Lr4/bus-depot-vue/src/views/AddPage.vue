@@ -105,50 +105,65 @@ export default {
 
 
 <template>
-    <div>
-        <Header></Header>
-        <a href="javascript:history.back()">← Отмена</a>
-        <h1>Добавление {{ type }}</h1>
+  <Header />
+  
+  <v-container style="max-width: 800px;">
+    <v-btn
+      class="mb-4"
+      @click="$router.go(-1)"
+    >
+      <v-icon>mdi-arrow-left</v-icon>
+      Отмена
+    </v-btn>
 
-        <form @submit.prevent="handleSubmit">
-            <div v-for="field in fieldsForType" :key="field">
-                <p>{{ field }}:</p>
+    <v-card flat>
+      <v-card-title class="text-h5">
+        Добавление {{ type }}
+      </v-card-title>
 
-                <select 
-                    v-if="isForeignKey(field)"
-                    v-model="formData[field]"
-                >
-                    <option
-                        v-for="option in getOptionsForField(field)"
-                        :key="option.id"
-                        :value="option.name"
-                    >
-                        {{ option.name }}
-                    </option>
-                </select>
+      <v-form @submit.prevent="handleSubmit">
+        <v-card-text>
+          <v-row>
+            <v-col
+              v-for="field in fieldsForType"
+              :key="field"
+              cols="12"
+            >
+              <v-select
+                v-if="isForeignKey(field)"
+                v-model="formData[field]"
+                :label="field"
+                :items="getOptionsForField(field).map(opt => opt.name)"
+                clearable
+              />
 
-                <select
-                    v-else-if="isChoiceField(field)"
-                    v-model="formData[field]"
-                >
-                    <option
-                        v-for="choice in getChoicesForField(field)"
-                        :key="choice"
-                        :value="choice"
-                    >
-                        {{ choice }}
-                    </option>
-                </select>
+              <v-select
+                v-else-if="isChoiceField(field)"
+                v-model="formData[field]"
+                :label="field"
+                :items="getChoicesForField(field)"
+                clearable
+              />
 
-                <input
-                    v-else
-                    type="text"
-                    v-model="formData[field]"
-                >
-            </div>
-            <button type="submit">
-                Создать
-            </button>
-        </form>
-    </div>
+              <v-text-field
+                v-else
+                v-model="formData[field]"
+                :label="field"
+                clearable
+              />
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn
+            type="submit"
+            color="primary"
+          >
+            Создать
+          </v-btn>
+        </v-card-actions>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>

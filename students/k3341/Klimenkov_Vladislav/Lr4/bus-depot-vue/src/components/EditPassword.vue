@@ -50,31 +50,24 @@ export default {
 
 
 <template>
-<div>
-    <a href="javascript:void(0)" @click="handleCancel">← Отмена</a>
-    <h2>Изменить пароль</h2>
-
-    <p>Старый пароль:</p>
-    <input
-        type="password"
-        v-model="oldPassword"
-    >
-
-    <p>Новый пароль:</p>
-    <input
-        type="password"
-        v-model="newPassword"
-    >
-
-    <p>Повторить новый пароль:</p>
-    <input
-        type="password"
-        v-model="reNewPassword"
-    >
-
-    <br>
-    <button @click="handleSave">
-        Сохранить
-    </button>
-</div>
+    <v-card style="max-width: 800px;">
+        <v-card-title>
+            <v-btn @click="handleCancel" class="mb-4">
+                <v-icon>mdi-arrow-left</v-icon>
+                Отмена
+            </v-btn>
+            <br>
+            Изменить пароль
+        </v-card-title>
+        
+        <v-card-text>
+            <v-text-field v-model="oldPassword" label="Старый пароль" type="password" />
+            <v-text-field v-model="newPassword" label="Новый пароль" type="password" />
+            <v-text-field v-model="reNewPassword" label="Повторить новый пароль" type="password" />
+        </v-card-text>
+        
+        <v-card-actions>
+            <v-btn @click="handleSave" color="primary">Сохранить</v-btn>
+        </v-card-actions>
+    </v-card>
 </template>

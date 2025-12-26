@@ -148,7 +148,7 @@ export default {
           <v-btn 
             text 
             small 
-            @click="$router.go(-2)"
+            @click="$router.go(-1)"
             class="mb-2"
           >
             <v-icon>mdi-arrow-left</v-icon>

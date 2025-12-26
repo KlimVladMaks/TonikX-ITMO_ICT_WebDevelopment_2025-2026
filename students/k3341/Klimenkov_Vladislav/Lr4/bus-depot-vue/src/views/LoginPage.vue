@@ -52,7 +52,7 @@ export default {
       <v-col cols="12" sm="8" md="6" lg="4">
         <v-card flat>
           <v-card-title>
-            <v-btn :to="{ path: '/auth' }" class="mb-4" color="grey lighten">
+            <v-btn :to="{ path: '/auth' }" class="mb-4">
               <v-icon>mdi-arrow-left</v-icon>
               Отмена
             </v-btn>
